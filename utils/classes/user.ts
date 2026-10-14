@@ -4,9 +4,9 @@
 export class User {
     id: number;
     username: string;
-    role: number;
+    role: string;
 
-    public constructor(id: number, username: string, role: number) {
+    public constructor(id: number, username: string, role: string) {
         this.id = id;
         this.username = username;
         this.role = role;

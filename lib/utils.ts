@@ -11,15 +11,15 @@ export function BreakDownFormData(formData) {
   return data;
 }
 
-export function DateString(date) {
+export function DateString(date: Date) {
   return date.toISOString().split("T")[0];
 }
 
-export function MidnightUTC(date) {
+export function MidnightUTC(date: Date) {
   return new Date(DateString(date) + "T00:00:00Z");
 }
 
-export function roundedTime(time) {
+export function roundedTime(time: number) {
   return parseFloat((time / 1000).toFixed(2));
 }
 
@@ -31,7 +31,7 @@ export function TimeToMidnightUTC() {
   return (midnightUTC.getTime() - now.getTime()) / 1000;
 }
 
-export function isValidEmail(email) {
+export function isValidEmail(email: string) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }

@@ -24,6 +24,8 @@
       "@pub/*": ["./public/*"],
       "@style/*": ["./styles/*"],
       "@util/*": ["./utils/*"],
+      "@lib/*": ["./lib/*"],
+      "@api/*": ["./api/*"],
     }
   },
   "include": [
