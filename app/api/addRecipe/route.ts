@@ -1,13 +1,13 @@
-import { ChefResponse, GenericHandler, confirmRoleLevel, sql } from "@/app/api/utils/_utils";
+import { ChefResponse, GenericHandler, sql } from "@/app/api/utils/_utils";
 import { checkPassword } from "@/app/api/utils/_passwords";
-import { createSession } from "@lib/session";
+import { createSession, verifySession } from "@lib/session";
 import { RoleLevels, RoleString } from "@/serverConfig";
 import { SqlResponse, ApiError } from "@/utils/classes/response";
 import { User } from "@/utils/classes/user";
 
 const PROCESS = "Add Recipe";
 export async function POST(req: Request) {
-  return await GenericHandler(req, logInCheck, PROCESS);
+  return await GenericHandler(req, addRecipe, PROCESS);
 }
 
 /*
@@ -57,24 +57,36 @@ export async function POST(req: Request) {
 */
 
 // TODO: update createSessions to use User type
-async function logInCheck(req: Request, resp: ChefResponse) {
-  const user = await req.json();
-  const query =
-    await sql`SELECT Userid, Username, Password, Role, TrialExpiration AS Exp FROM Users WHERE Email = ${user.email};`;
+/**
+ * 
+ * verify session to ensure a user is doing this and get their Id
+ * pull recipe information from the request variable
+ * insert into recipe table
+ * insert ingredients in a transaction
+ * 
+ */
+async function addRecipe(req: Request, resp: ChefResponse) {
+  const session = await verifySession();
+  if (!session) 
+      throw new ApiError("", 400, "")
 
-  if (!query.length) throw new ApiError("Incorrect email/password", 400, "");
-  const userInfo = query[0];
+  const recipe = await req.json();
+  var query =
+    await sql`INSERT INTO Recipes (name, user_id, instructions) VALUES (${recipe.name}, ${session.id}, ${recipe.instructions});`;
 
-  checkPassword(user.password, userInfo.password);
+  // Map all ingredients to a single comma-separated string for big insertion
+  const ingredients = recipe.ingredients.map((name: string) => name.trim().toLowerCase())
 
-  // TODO: verify that pulling trial expiration can be compared to current date
-  const response = { username: userInfo.username },
-    session = new User(userInfo.userid, userInfo.username, confirmRoleLevel(userInfo.role)) ;
+  // On Conflict prevents issues where a known ingredient is inserted, but still allows the id and name to be returned
+  // TODO: confirm that this works as intended in terms of the return
+  const rows = await sql`INSERT INTO Ingredients (name) 
+    SELECT unnest(${ingredients}::text[]) 
+    ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name RETURNING ingredient_id, name`
 
+  const idByName = new Map<string, number>(rows.map((r) => [r.name, r.ingredient_id]));
 
-  await createSession(session);
-  
+  // TODO: need to do a map of information from recipe variable about each ingredient to the id and use that for this insertion
+  await sql`INSERT INTO Recipe_to_ingredients`
 
-  resp.setData(response);
   return;
 }

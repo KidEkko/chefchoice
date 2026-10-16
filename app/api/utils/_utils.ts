@@ -1,7 +1,6 @@
 import "server-only"
 
 import { ApiError } from "@util/classes/response";
-import { RoleIntMap, RoleMap, RoleString } from "@/serverConfig";
 import { neon } from "@neondatabase/serverless";
 
 export const sql = neon(`${process.env.DATABASE_URL}`);
@@ -48,7 +47,6 @@ export class ChefResponse {
 
 type Handler = (req: Request, resp: ChefResponse) => void | Promise<void>;
 
-// handler functions fine as it is now, but ideally we remove implicit any typing
 export async function GenericHandler(req: Request, handler: Handler, process: string) {
   console.time(`${process}`);
   const Resp = new ChefResponse();
@@ -62,11 +60,6 @@ export async function GenericHandler(req: Request, handler: Handler, process: st
 
   console.timeEnd(`${process}`);
   return await Resp.DataResponse();
-}
-
-// TODO: find a simple way to fix this if it's even necessary
-export function confirmRoleLevel(role: number) {
-  return RoleIntMap.get(role);
 }
 
 export function cacheResponse(resp: Response, age: number) {

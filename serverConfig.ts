@@ -12,19 +12,27 @@ export const RoleLevels = Object.freeze({
     Basic: 1,
 });
 
-export const RoleMap = new Map([
+export const RoleMap = new Map<string, number>([
     [RoleString.Owner, RoleLevels.Owner],
     [RoleString.Admin, RoleLevels.Admin],
     [RoleString.Basic, RoleLevels.Basic],
 ]);
 
+export function GetRoleNum(arg: string): number {
+    return RoleMap.get(arg) || RoleLevels.Basic;
+}
+
 // not sure if I should be doing this
 // making an array doesn't sound good much better than this
-export const RoleIntMap = new Map([
+export const RoleIntMap = new Map<number, string>([
     [RoleLevels.Owner, RoleString.Owner],
     [RoleLevels.Admin, RoleString.Admin],
     [RoleLevels.Basic, RoleString.Basic],
 ]);
+
+export function GetRoleString(arg: number): string {
+    return RoleIntMap.get(arg) || RoleString.Basic;
+}
 
 export const Paths = Object.freeze({
     HOME: "/",

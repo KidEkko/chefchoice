@@ -1,9 +1,9 @@
-const HOUR_IN_SECONDS = 60 * 60;
-const DAY_IN_SECONDS = HOUR_IN_SECONDS * 24;
-const SIX_DAYS_IN_SECONDS = HOUR_IN_SECONDS * 24 * 6;
-const WEEK_IN_SECONDS = HOUR_IN_SECONDS * 24 * 7;
-const MONTH_IN_SECONDS = DAY_IN_SECONDS * 31;
-const YEAR_IN_SECONDS = DAY_IN_SECONDS * 365;
+const HOUR_IN_SECONDS: number = 60 * 60;
+const DAY_IN_SECONDS: number = HOUR_IN_SECONDS * 24;
+const SIX_DAYS_IN_SECONDS: number = HOUR_IN_SECONDS * 24 * 6;
+const WEEK_IN_SECONDS: number = HOUR_IN_SECONDS * 24 * 7;
+const MONTH_IN_SECONDS: number = DAY_IN_SECONDS * 31;
+const YEAR_IN_SECONDS: number = DAY_IN_SECONDS * 365;
 
 export const Seconds = Object.freeze({
   Hour: HOUR_IN_SECONDS,
@@ -43,8 +43,6 @@ export const DefaultPaths: Tab[] = [
   },
   {
     id: 1,
-    // TODO: original used Paths.ME, which doesn't exist (so path was undefined).
-    // Assumed PROFILE was intended.
     path: Paths.PROFILE,
     title: "Me",
     icon: "me",

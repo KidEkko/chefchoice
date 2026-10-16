@@ -21,7 +21,10 @@ export async function encrypt(payload: JWTPayload): Promise<string> {
 }
 
 // TODO: confirm that this works as intended. will know when testing
-export async function decrypt(session: string | Uint8Array): Promise<DecodedSession | null> {
+// EXTRA TODO: confirm that Uint8Array can evaluate to true for the conditional. will get error otherwise.
+export async function decrypt(session: string | Uint8Array | undefined): Promise<DecodedSession | null> {
+  if (!session) return null
+  
   try {
     const { payload } = await jwtVerify<DecodedSession>(session, encodedKey, {
       algorithms: ["HS256"],
