@@ -4,7 +4,7 @@ import { SignJWT, type JWTPayload, jwtVerify } from "jose";
 import { CookieString, Seconds } from "@util/constants";
 import { cookies } from "next/headers";
 import { secureCookie } from "@util/functions";
-import { User } from "@/utils/classes/user";
+import { User } from "@/utils/types/user";
 
 const secretKey = process.env.SESSION_SECRET;
 const encodedKey = new TextEncoder().encode(secretKey);
@@ -24,7 +24,7 @@ export async function encrypt(payload: JWTPayload): Promise<string> {
 // EXTRA TODO: confirm that Uint8Array can evaluate to true for the conditional. will get error otherwise.
 export async function decrypt(session: string | Uint8Array | undefined): Promise<DecodedSession | null> {
   if (!session) return null
-  
+
   try {
     const { payload } = await jwtVerify<DecodedSession>(session, encodedKey, {
       algorithms: ["HS256"],
@@ -37,7 +37,7 @@ export async function decrypt(session: string | Uint8Array | undefined): Promise
   return null;
 }
 
-// Current session format: { id, username, role, exp (expiration) }
+// Current session format: { id, username, role }
 export async function createSession(session: User) {
   const time = Seconds.Week;
   const token = await encrypt({ ...session, time });

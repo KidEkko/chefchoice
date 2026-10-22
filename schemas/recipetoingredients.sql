@@ -1,8 +1,8 @@
 CREATE TABLE recipe_to_ingredients (
   row_id serial primary key,
-  recipe_id references recipes,
-  ingredient_id references ingredients,
-  amount integer not null,
+  recipe_id integer references recipes,
+  ingredient_id integer references ingredients,
+  amount numeric not null,
   unit text not null,
-  notes text,
-)
+  notes text
+);

@@ -1,6 +1,6 @@
 import "server-only"
 
-import { ApiError } from "@util/classes/response";
+import { ApiError } from "@/utils/types/response";
 import { neon } from "@neondatabase/serverless";
 
 export const sql = neon(`${process.env.DATABASE_URL}`);
@@ -52,9 +52,10 @@ export async function GenericHandler(req: Request, handler: Handler, process: st
   const Resp = new ChefResponse();
 
   try {
-    checkActive();
+    // checkActive();
     await handler(req, Resp);
   } catch (err) {
+    console.log(err)
     Resp.setError(err as ApiError);
   }
 

@@ -1,9 +1,8 @@
-import { GenericHandler, sql } from "@/app/api/utils/_utils.js";
-import { ApiError } from "@/utils/classes/response";
+import { GenericHandler, sql, ChefResponse } from "@/app/api/utils/_utils";
+import { ApiError } from "@/utils/types/response";
 import { SaltyPass } from "@/app/api/utils/_passwords";
 import { createSession } from "@lib/session";
-import { ChefResponse } from "../utils/_utils.js";
-import { RoleString } from "@/serverConfig.js";
+import { RoleString } from "@/serverConfig";
 
 const PROCESS = "User Signup";
 export async function POST(req: Request) {
@@ -21,11 +20,11 @@ async function addUser(req: Request, resp: ChefResponse) {
   const pass = SaltyPass(user.password);
 
   query =
-    await sql`WITH Id AS (INSERT INTO Users (Username, Email, Password) VALUES (${user.username}, ${user.email}, ${pass}) RETURNING User_Id) 
-      SELECT User_Id FROM Id;`;
+    await sql`INSERT INTO Users (Username, Email, Password) 
+      VALUES (${user.username}, ${user.email}, ${pass}) RETURNING user_id`;
 
-  const id = query[0].userid;
-  await createSession({ id: id, username: user.username, role: RoleString.Basic});
+  const id = query[0].user_id;
+  await createSession({ id: id, username: user.username, role: RoleString.Basic });
   resp.setData({ username: user.username });
   return;
 }

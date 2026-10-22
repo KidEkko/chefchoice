@@ -9,11 +9,11 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { GetUserWithToken } from "@util/classes/response";
+import { GetUserWithToken } from "@/utils/types/response";
 import { Paths, PublicRoutes } from "@util/constants";
 import { useLoading } from "@util/customHooks";
 import { usePathname, useRouter } from "next/navigation";
-import { User } from "@util/classes/user"
+import { User } from "@/utils/types/user"
 
 
 export interface UserContextType {

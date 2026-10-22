@@ -4,5 +4,5 @@ CREATE TABLE recipes (
   user_id integer references users,
   instructions text,
   created_on timestamptz default current_date,
-  is_deleted boolean not null default false,
-)
+  is_deleted boolean not null default false
+);

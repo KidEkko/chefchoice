@@ -1,4 +1,4 @@
-import { ApiError } from "@util/classes/response";
+import { ApiError } from "@/utils/types/response";
 import bcrypt from "bcryptjs-react";
 
 bcrypt.setRandomFallback((len) => {
