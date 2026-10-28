@@ -25,7 +25,7 @@ export class ChefResponse {
   }
 
   setError(err: ApiError) {
-    this.setData({ details: err.details });
+    this.setData(err);
     this.status = err.code || 500;
   }
 
@@ -56,7 +56,9 @@ export async function GenericHandler(req: Request, handler: Handler, process: st
     await handler(req, Resp);
   } catch (err) {
     console.log(err)
-    Resp.setError(err as ApiError);
+    // TODO: not even sure if I need this
+    if (err instanceof ApiError)
+      Resp.setError(err);
   }
 
   console.timeEnd(`${process}`);
@@ -75,5 +77,5 @@ export function cacheResponse(resp: Response, age: number) {
 // In case I need to quickly shut things off in prod
 export function checkActive() {
   if (process.env.ACTIVE !== "true")
-    throw new ApiError("Server is currently down.", 500, "");
+    throw new ApiError("Server is currently down.", 500);
 }

@@ -15,7 +15,7 @@ async function addUser(req: Request, resp: ChefResponse) {
   var query =
     await sql`SELECT 1 FROM Users WHERE Email = ${user.email};`;
 
-  if (!!query.length) throw new ApiError("Invalid Email. Please Try A Different One.", 400, "");
+  if (!!query.length) throw new ApiError("Invalid Email. Please Try A Different One.", 400);
 
   const pass = SaltyPass(user.password);
 

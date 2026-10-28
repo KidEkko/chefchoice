@@ -22,7 +22,7 @@ async function logInCheck(req: Request, resp: ChefResponse) {
   const query =
     (await sql`SELECT User_id, Username, Password, Is_Admin FROM Users WHERE Email = ${user.email};`) as UserAuthRow[];
 
-  if (!query.length) throw new ApiError("Incorrect email/password", 400, "");
+  if (!query.length) throw new ApiError("Incorrect email/password", 400);
   const userInfo = query[0];
 
   checkPassword(user.password, userInfo.password);

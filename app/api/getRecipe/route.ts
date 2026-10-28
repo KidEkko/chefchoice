@@ -14,7 +14,7 @@ export async function GET(req: Request) {
 async function getRecipe(req: Request, resp: ChefResponse) {
   const session = await verifySession();
   if (!session)
-    throw new ApiError(ErrorMessages.INVALID_SESSION_ERROR, 400, "")
+    throw new ApiError(ErrorMessages.INVALID_SESSION_ERROR, 400)
 
 
   const recipe = await req.json();
@@ -23,7 +23,7 @@ async function getRecipe(req: Request, resp: ChefResponse) {
   // Should still be a global error type, but might have to duplicate in backend and frontend. Can just be more detailed in backend?
   // Also man do I need that third string or what. Another part of TS I'm not fully used to getting around
   if (!recipe)
-    throw new ApiError("No recipe provided", 401, "")
+    throw new ApiError("No recipe provided", 401)
 
 
   // Query for basic recipe information, confirming that it is not currently deleted
@@ -32,7 +32,7 @@ async function getRecipe(req: Request, resp: ChefResponse) {
       INNER JOIN users u ON u.user_id = r.user_id
       WHERE r.recipe_id = ${recipe.id} AND r.id_deleted = false;`) as RecipeRow[];
 
-  if (!recipeInfo.length) throw new ApiError("No Recipe Found", 400, "");
+  if (!recipeInfo.length) throw new ApiError("No Recipe Found", 400);
  
   // Perform the more expensive query that also requires multiple rows now that we know we're good
   const ingredients =

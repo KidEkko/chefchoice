@@ -46,8 +46,6 @@ export function UserProvider({ children }: UserProviderProps) {
 
 
   const logout = useCallback(() => {
-    // oldHome(); update this
-
     if (!PublicRoutes.includes(path)) router.push(Paths.HOME);
     setUser(null);
   }, [path, router]);
@@ -60,7 +58,7 @@ export function UserProvider({ children }: UserProviderProps) {
   useEffect(() => {
     async function getUser() {
       const resp = await GetUserWithToken();
-      if (resp?.goodResponse()) login(resp.data);
+      if (typeof resp === User) login(resp as User);
       uStop();
     }
 
@@ -69,7 +67,6 @@ export function UserProvider({ children }: UserProviderProps) {
 
   if (uLoading) {
     // TODO: Design default skeleton look for pages to display while loading.
-    // there may be a better way to do this
     
     return (
       <>

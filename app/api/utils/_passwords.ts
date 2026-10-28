@@ -8,7 +8,7 @@ bcrypt.setRandomFallback((len) => {
 });
 
 const salt = bcrypt.genSaltSync(10);
-const pepper = "ba41-83rhG-3XaqLn"; // TODO: Update this.
+const pepper = "xd12-yn87g-pO0l1"; // TODO: Update this.
 
 export function SaltyPass(password: string) {
   return bcrypt.hashSync(classicCombo(password), salt);
@@ -16,7 +16,7 @@ export function SaltyPass(password: string) {
 
 export function checkPassword(input: string, saved: string) {
   if (!bcrypt.compareSync(classicCombo(input), saved))
-    throw new ApiError("Incorrect email/password", 400, "");
+    throw new ApiError("Incorrect email/password", 400);
 }
 
 function classicCombo(password: string) {

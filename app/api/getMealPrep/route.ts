@@ -61,7 +61,7 @@ async function getMealPrep(req: Request, resp: ChefResponse) {
 
   const session = await verifySession();
   if (!session)
-    throw new ApiError(ErrorMessages.INVALID_SESSION_ERROR, 400, "")
+    throw new ApiError(ErrorMessages.INVALID_SESSION_ERROR, 400)
 
 
 

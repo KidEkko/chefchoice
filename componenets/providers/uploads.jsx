@@ -21,11 +21,10 @@ export function UploadProvider({ ...props }) {
   const { loading, startLoading, stopLoading } = useLoading();
   const params = useSearchParams();
 
-  const getUploads = useCallback(async (lewds) => {
+  const getUploads = useCallback(async () => {
     var count = parseInt(params.get("count")) || 20, page = parseInt(params.get("page")) || 0;
     while (true) {
       const resp = await GenericFetchWithQueries("getUploads", {
-        lewds: lewds,
         count: count,
         page: page,
       })

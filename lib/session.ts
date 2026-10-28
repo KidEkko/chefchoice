@@ -47,21 +47,22 @@ export async function createSession(session: User) {
 }
 
 // TODO: add other local interactions in routes, to avoid issues and such
-// export async function createLocalSession() {
-//   const localSesh = JSON.parse(process.env.LOCAL_SESSION);
-//   const token = await encrypt(localSesh);
-//   const cookie = await cookies();
+export async function createLocalSession(): Promise<User> {
+  const localSesh = JSON.parse(process.env.LOCAL_SESSION || "");
+  const token = await encrypt(localSesh);
 
-//   cookie.set(CookieString.UserToken, token, secureCookie(Seconds.Week));
-//   return localSesh;
-// }
+  const cookie = await cookies();
+  cookie.set(CookieString.UserToken, token, secureCookie(Seconds.Week));
+  return localSesh as User;
+}
 
-export async function updateSession(session: User) {
+export async function updateSession(session: User): Promise<User | null> {
   if (!session) return null;
   await createSession(session);
   return session;
 }
 
+// TODO: update the || "" with more certainty
 export async function verifySession() {
   const token = await cookies()
   const tokenString = token.get(CookieString.UserToken)?.value || "";
@@ -70,7 +71,6 @@ export async function verifySession() {
   const session = await decrypt(tokenString);
 
   if (!session) return deleteSession();
-
   return await updateSession(session);
 }
 
