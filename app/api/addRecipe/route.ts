@@ -14,7 +14,7 @@ async function addRecipe(req: Request, resp: ChefResponse) {
 
       const session = await verifySession();
       if (!session) // TODO: Error message string for invalid session
-          throw new ApiError(ErrorMessages.INVALID_SESSION_ERROR, 400)
+          throw new ApiError(ErrorMessages.INVALID_SESSION_ERROR, {status: 400})
 
     console.log("starting");
 

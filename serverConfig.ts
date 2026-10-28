@@ -91,6 +91,8 @@ export const ErrorMessages = Object.freeze({
     VALID_EMAIL_ERROR: "Invalid Email",
     NO_ROWS_RETURNED: "No rows returned in response",
     GENERIC_ERROR: "Something Went Wrong",
-    INVALID_SESSION_ERROR: "Session is Invalid. Please try resetting login."
+    INVALID_SESSION_ERROR: "Session is Invalid. Please try resetting login.",
+    RECIPE_GET_FAIL_ERROR: "Failed to Get Recipe.",
+    
 });
 

@@ -1,25 +1,54 @@
 import { ErrorMessages } from "@/serverConfig";
-import type { User } from "./user";
+import { User } from "./user";
+import { Recipe } from "./recipe";
 
-export class ApiError extends Error {
-  code: number;
+/**
+ * Things to do now
+ * this file is in a comfortable spot now
+ * 
+ * what else do I need to do?
+ *    move functions out of this file that don't need to be here. this was useful in my own personal website, but figuring out a standard practice would be good
+ *    Add remainign planned routes
+ *    create the endpoints
+ *    create hooks and/or providers that can be used in the front end
+ *    figure out how to get environment variables for group members. I could just share the file with them, but I want to look into the ideal way to handle this
+ *    look into linting so that I stop getting annoyed by the random decision between space and tab
+ *    confirm that the return types for "add something" POSTs are correct and whether I need them at all for somethig like recipe
+ *   
+ * Once I finish these, I believe that I can start giving thought to other features and how they would look
+ * I can consider things like nextauth and how they would look
+ * linting is one of those things
+ * 
+ */
 
-  public constructor(details: string, code: number) {
-    super();
-    this.details = details;
-    this.code = code;
-  }
+// TODO: examine these objects and confirm everything looks good to go.
+export interface ApiErrorBody {
+  message: string;
+  code?: string;
+  fields?: Record<string, string>;
 }
 
-export interface ApiError {
-  details: string;                  
-  code: number;                      
+export class ApiError extends Error {
+  readonly status?: number;
+  readonly code?: string;
+  readonly fields?: Record<string, string>;
+
+  constructor(
+    message: string,
+    opts: { status?: number; code?: string; fields?: Record<string, string> } = {}
+  ) {
+    super(message);
+    Object.assign(this, opts);
+  }
+
+  toBody(): ApiErrorBody {
+    return { message: this.message, code: this.code, fields: this.fields };
+  }
 }
 
 export type ApiResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: ApiError };
-
 
 // Params for GET requests built into a query string
 export type QueryParams = Record<string, string | number | boolean>;
@@ -60,26 +89,32 @@ function post(body: unknown): RequestInit {
 }
 
 // TODO: really analyze this and decide on it. At the very least, learn from it.
-async function request<T>(path: string, fallback: string = ErrorMessages.GENERIC_ERROR, init?: RequestInit): Promise<ApiResult<T>> {
+async function request<T>(path: string, fallback: string = ErrorMessages.GENERIC_ERROR, init?: RequestInit, params?: QueryParams): Promise<ApiResult<T>> {
   let resp: Response;
   try {
-    resp = await genericFetch(path, init);
+    if (!!params) {
+      resp = await genericFetchWithQueries(path, params, init);
+    } else  {
+      resp = await genericFetch(path, init);
+    }
   } catch {
-    return fail({ details: fallback }); // network failure: no response at all
+    return fail(new ApiError(fallback));
   }
 
   let body = await resp.json();
 
   if (!resp.ok) {
-    const err = body as Partial<ApiError> | null;
-    return fail({
-      details: err?.details ?? fallback,
-      status: resp.status,
-      code: err?.code,
-    });
+    const err = body as Partial<ApiErrorBody> | null;
+    return fail(
+      new ApiError(err?.message ?? fallback, {
+        status: resp.status,
+        code: err?.code,
+        fields: err?.fields,
+      })
+    );
   }
 
-  if (body === null) return fail({ details: fallback, status: resp.status });
+  if (body === null) return fail(new ApiError(fallback));
   return ok(body as T);
 }
 
@@ -91,39 +126,19 @@ export function CreateNewUser(user: User): Promise<ApiResult<User>> {
   return request<User>(PubRequests.AddUser, ErrorMessages.DEFAULT_LOGIN_ERROR, post(user));
 }
 
-export async function SubmitLogin(user: User): Promise<SqlResponse<User>> {
-  return await genericFetch(PubRequests.LogUser, {
-    method: "POST",
-    body: JSON.stringify(user),
-  })
-    .then((resp) => {
-      return resp.json();
-    })
-    .then((resp) => {
-      return AssignUserResponse(resp);
-    })
-    .catch(() => {
-      console.log("whoops");
-      return new SqlResponse<User>({ details: ErrorMessages.DEFAULT_LOGIN_ERROR });
-      // handle the error outside of this function
-    });
+export async function SubmitLogin(user: User): Promise<ApiResult<User>> {
+  return request<User>(PubRequests.LogUser, ErrorMessages.DEFAULT_LOGIN_ERROR, post(user));
 }
 
-export async function UpdateUser(user: User): Promise<SqlResponse<User>> {
-  const response = await genericFetch(PubRequests.UpdateUser, {
-    method: "POST",
-    body: JSON.stringify(user),
-  })
-    .then((resp) => {
-      return resp.json();
-    })
-    .then((resp) => {
-      return AssignUserResponse(resp);
-    })
-    .catch(() => {
-      console.log("whoops");
-      return new SqlResponse<User>({ details: ErrorMessages.DEFAULT_UPDATE_USER_ERROR });
-    });
+// TODO: Add message strings for all below functions
+export async function UpdateUser(user: User): Promise<ApiResult<User>> {
+  return request<User>(PubRequests.UpdateUser, ErrorMessages.DEFAULT_UPDATE_USER_ERROR, post(user));
+}
 
-  return response;
+export async function GetRecipe(recipeId: number): Promise<ApiResult<Recipe>> {
+  return request<Recipe>(PubRequests.GetRecipe, ErrorMessages.GENERIC_ERROR, post(recipeId));
+}
+
+export async function AddRecipe(recipe: Recipe): Promise<ApiResult<Recipe>> {
+  return request<Recipe>(PubRequests.AddRecipe, ErrorMessages.GENERIC_ERROR, post(recipe));
 }

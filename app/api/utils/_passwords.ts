@@ -16,7 +16,7 @@ export function SaltyPass(password: string) {
 
 export function checkPassword(input: string, saved: string) {
   if (!bcrypt.compareSync(classicCombo(input), saved))
-    throw new ApiError("Incorrect email/password", 400);
+    throw new ApiError("Incorrect email/password", {status: 400});
 }
 
 function classicCombo(password: string) {

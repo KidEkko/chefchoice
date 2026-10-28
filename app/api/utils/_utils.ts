@@ -26,7 +26,7 @@ export class ChefResponse {
 
   setError(err: ApiError) {
     this.setData(err);
-    this.status = err.code || 500;
+    this.status = err.status || 500;
   }
 
   cacheResponse(age: number) {
@@ -77,5 +77,5 @@ export function cacheResponse(resp: Response, age: number) {
 // In case I need to quickly shut things off in prod
 export function checkActive() {
   if (process.env.ACTIVE !== "true")
-    throw new ApiError("Server is currently down.", 500);
+    throw new ApiError("Server is currently down.", {status: 500});
 }

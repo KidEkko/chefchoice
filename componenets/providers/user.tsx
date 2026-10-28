@@ -44,7 +44,6 @@ export function UserProvider({ children }: UserProviderProps) {
 
   const login = useCallback((newUser: User) => setUser(newUser), []);
 
-
   const logout = useCallback(() => {
     if (!PublicRoutes.includes(path)) router.push(Paths.HOME);
     setUser(null);
@@ -58,7 +57,7 @@ export function UserProvider({ children }: UserProviderProps) {
   useEffect(() => {
     async function getUser() {
       const resp = await GetUserWithToken();
-      if (typeof resp === User) login(resp as User);
+      if (resp.ok) login(resp.data)
       uStop();
     }
 
