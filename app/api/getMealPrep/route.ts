@@ -1,7 +1,7 @@
 import { ChefResponse, GenericHandler, sql } from "@/app/api/utils/_utils";
 import { verifySession } from "@/lib/session";
 import { ErrorMessages } from "@/serverConfig";
-import { ApiError } from "@/utils/types/response";
+import { ApiError } from "@/utils/types";
 
 
 const PROCESS = "Get Meal Prep";
@@ -61,7 +61,7 @@ async function getMealPrep(req: Request, resp: ChefResponse) {
 
   const session = await verifySession();
   if (!session)
-    throw new ApiError(ErrorMessages.INVALID_SESSION_ERROR, 400)
+    throw new ApiError(ErrorMessages.INVALID_SESSION_ERROR, {status: 400})
 
 
 

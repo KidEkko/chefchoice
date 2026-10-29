@@ -1,8 +1,9 @@
 import { ChefResponse, GenericHandler, sql } from "@/app/api/utils/_utils";
 import { checkPassword } from "@/app/api/utils/_passwords";
 import { createSession } from "@lib/session";
-import { ApiError } from "@/utils/types/response";
-import { UserAuthRow, UserAuthRowToUser } from "../utils/db/user";
+import { ApiError } from "@/utils/types";
+import { UserAuthRow, UserAuthRowToUser } from "../utils/db";
+import { ErrorMessages } from "@/serverConfig";
 
 const PROCESS = "Authentication";
 export async function POST(req: Request) {
@@ -22,7 +23,7 @@ async function logInCheck(req: Request, resp: ChefResponse) {
   const query =
     (await sql`SELECT User_id, Username, Password, Is_Admin FROM Users WHERE Email = ${user.email};`) as UserAuthRow[];
 
-  if (!query.length) throw new ApiError("Incorrect email/password", {status: 400});
+  if (!query.length) throw new ApiError(ErrorMessages.INVALID_EMAIL_PASSWORD_ERROR, { status: 400 });
   const userInfo = query[0];
 
   checkPassword(user.password, userInfo.password);

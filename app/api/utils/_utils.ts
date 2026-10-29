@@ -1,6 +1,6 @@
 import "server-only"
 
-import { ApiError } from "@/utils/types/response";
+import { ApiError } from "@/utils/types/api";
 import { neon } from "@neondatabase/serverless";
 
 export const sql = neon(`${process.env.DATABASE_URL}`);

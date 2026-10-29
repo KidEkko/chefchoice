@@ -3,7 +3,7 @@ import "server-only";
 import { SignJWT, type JWTPayload, jwtVerify } from "jose";
 import { CookieString, Seconds } from "@util/constants";
 import { cookies } from "next/headers";
-import { secureCookie } from "@util/functions";
+import { secureCookie } from "@/utils/cookies";
 import { User } from "@/utils/types/user";
 
 const secretKey = process.env.SESSION_SECRET;
@@ -20,19 +20,17 @@ export async function encrypt(payload: JWTPayload): Promise<string> {
     .sign(encodedKey);
 }
 
-// TODO: confirm that this works as intended. will know when testing
-// EXTRA TODO: confirm that Uint8Array can evaluate to true for the conditional. will get error otherwise.
 export async function decrypt(session: string | Uint8Array | undefined): Promise<DecodedSession | null> {
-  if (!session) return null
+  if (session !== undefined) {
+    try {
+      const { payload } = await jwtVerify<DecodedSession>(session, encodedKey, {
+        algorithms: ["HS256"],
+      });
 
-  try {
-    const { payload } = await jwtVerify<DecodedSession>(session, encodedKey, {
-      algorithms: ["HS256"],
-    });
-
-    return payload;
-  } catch (error) {
-    console.log("Failed to verify session");
+      return payload;
+    } catch (error) {
+      console.log("Failed to verify session");
+    }
   }
   return null;
 }
@@ -62,12 +60,11 @@ export async function updateSession(session: User): Promise<User | null> {
   return session;
 }
 
-// TODO: update the || "" with more certainty
 export async function verifySession() {
-  const token = await cookies()
-  const tokenString = token.get(CookieString.UserToken)?.value || "";
+  const token = await cookies();
   if (!token) return null;
 
+  const tokenString = token.get(CookieString.UserToken)?.value;
   const session = await decrypt(tokenString);
 
   if (!session) return deleteSession();

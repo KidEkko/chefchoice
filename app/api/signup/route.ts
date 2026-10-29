@@ -1,8 +1,8 @@
-import { GenericHandler, sql, ChefResponse } from "@/app/api/utils/_utils";
-import { ApiError } from "@/utils/types/response";
+import { GenericHandler, sql, ChefResponse } from "@/app/api/utils/_utils";  
 import { SaltyPass } from "@/app/api/utils/_passwords";
 import { createSession } from "@lib/session";
 import { RoleString } from "@/serverConfig";
+import { ApiError, User } from "@/utils/types";
 
 const PROCESS = "User Signup";
 export async function POST(req: Request) {
@@ -24,7 +24,7 @@ async function addUser(req: Request, resp: ChefResponse) {
       VALUES (${user.username}, ${user.email}, ${pass}) RETURNING user_id`;
 
   const id = query[0].user_id;
-  await createSession({ id: id, username: user.username, role: RoleString.Basic });
+  await createSession({ id: id, username: user.username, role: RoleString.Basic } as User);
   resp.setData({ username: user.username });
   return;
 }

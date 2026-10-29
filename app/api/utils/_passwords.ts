@@ -1,4 +1,5 @@
-import { ApiError } from "@/utils/types/response";
+import { ErrorMessages } from "@/serverConfig";
+import { ApiError } from "@/utils/types/api";
 import bcrypt from "bcryptjs-react";
 
 bcrypt.setRandomFallback((len) => {
@@ -8,7 +9,7 @@ bcrypt.setRandomFallback((len) => {
 });
 
 const salt = bcrypt.genSaltSync(10);
-const pepper = "xd12-yn87g-pO0l1"; // TODO: Update this.
+const pepper = "xd12-yn87g-pO0l1";
 
 export function SaltyPass(password: string) {
   return bcrypt.hashSync(classicCombo(password), salt);
@@ -16,9 +17,9 @@ export function SaltyPass(password: string) {
 
 export function checkPassword(input: string, saved: string) {
   if (!bcrypt.compareSync(classicCombo(input), saved))
-    throw new ApiError("Incorrect email/password", {status: 400});
+    throw new ApiError(ErrorMessages.INVALID_EMAIL_PASSWORD_ERROR, {status: 400});
 }
 
-function classicCombo(password: string) {
-  return `${password}-${pepper}`;
+function classicCombo(salt: string) {
+  return `${salt}-${pepper}`;
 }

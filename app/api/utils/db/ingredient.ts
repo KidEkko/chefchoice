@@ -1,5 +1,5 @@
-import { Ingredient } from "@/utils/types/ingredient"
 import "server-only"
+import { Ingredient } from "@/utils/types"
 
 export interface IngredientRow {
   ingredient_id: number,

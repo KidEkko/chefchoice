@@ -1,4 +1,4 @@
-import { ChefResponse, GenericHandler, sql } from "@/app/api/utils/_utils"; 
+import { ChefResponse, GenericHandler } from "@/app/api/utils/_utils"; 
 import { createLocalSession, verifySession } from "@/lib/session"; 
 
 const PROCESS = "Get User Via Token";
@@ -15,9 +15,8 @@ async function getUserWithToken(req: Request, resp: ChefResponse) {
     }
     return
   }
-
-  const data = { username: session.username };
-
-  resp.setData(data);
+ 
+  // Return only username. Don't want the ID or role visible in network traffic.
+  resp.setData({ username: session.username });
   return
 }

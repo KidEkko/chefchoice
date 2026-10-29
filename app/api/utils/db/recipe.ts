@@ -1,5 +1,5 @@
 import "server-only"
-import { Recipe } from "@/utils/types/recipe"
+import { Recipe } from "@/utils/types"
 import { IngredientRow, IngredientRowsToIngredient } from "./ingredient"
 
 export interface RecipeRow {

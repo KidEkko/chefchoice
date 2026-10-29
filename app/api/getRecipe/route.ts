@@ -1,9 +1,7 @@
 import { ChefResponse, GenericHandler, sql } from "@/app/api/utils/_utils";
 import { verifySession } from "@lib/session";
-import { ApiError } from "@/utils/types/response";
-import { Recipe } from "@/utils/types/recipe";
-import { RecipeRow, RowToRecipe } from "../utils/db/recipe";
-import { IngredientRow } from "../utils/db/ingredient";
+import { ApiError } from "@/utils/types";
+import { RecipeRow, RowToRecipe, IngredientRow } from "../utils/db"; 
 import { ErrorMessages } from "@/serverConfig";
 
 const PROCESS = "Get Recipe";

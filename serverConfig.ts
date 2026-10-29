@@ -88,6 +88,8 @@ export const ErrorMessages = Object.freeze({
     PASSWORD_LENGTH_ERROR: "Password must be at least 6 characters",
     PASSWORD_TOO_LONG_ERROR: "Password cannot be more than 24 characters",
     NOT_NEW_PASSWORD_ERROR: "New password must be different from old",
+    INVALID_PASSWORD_ERROR: "Incorrect Password",
+    INVALID_EMAIL_PASSWORD_ERROR: "Incorrect email/password",
     VALID_EMAIL_ERROR: "Invalid Email",
     NO_ROWS_RETURNED: "No rows returned in response",
     GENERIC_ERROR: "Something Went Wrong",
