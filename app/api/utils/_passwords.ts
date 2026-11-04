@@ -4,7 +4,6 @@ import bcrypt from "bcryptjs-react";
 
 bcrypt.setRandomFallback((len) => {
   const buf = new Array<number>(len);
-
   return buf.map(() => Math.floor(Math.random() * 256));
 });
 

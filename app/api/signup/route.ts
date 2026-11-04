@@ -12,6 +12,7 @@ export async function POST(req: Request) {
 async function addUser(req: Request, resp: ChefResponse) {
   const user = await req.json();
 
+  // TODO: should we do something different if is_deleted is true? think about it
   var query =
     await sql`SELECT 1 FROM Users WHERE Email = ${user.email};`;
 

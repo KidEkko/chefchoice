@@ -1,13 +1,13 @@
-import { clsx } from "clsx"
+import { ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
-export function cn(...inputs) {
+export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function BreakDownFormData(formData) {
-  const data = {};
-  for (const pair of formData.entries()) data[pair[0]] = pair[1]
+export function BreakDownFormData(formData: Object): Map<string, any> {
+  const data = new Map<string, any>();
+  for (const pair of Object.entries(formData)) data.set(pair[0], pair[1])
   return data;
 }
 

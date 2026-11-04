@@ -1,6 +1,37 @@
+import { verifySession } from "@/lib/session";
+import { Paths } from "@/serverConfig";
+import { User } from "@/utils/types";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { sql } from "../api/utils/_utils";
+import { UserAuthRow, UserAuthRowToUser } from "../api/utils/db";
 
-export default function Home() {
+// TODO: add option to delete and recover profile?
+async function GetProfileById(id: number): Promise<User | null> {
+  const query = 
+      (await sql`SELECT Email, Username, Password, Is_Admin FROM Users WHERE User_id = ${id} AND NOT Is_deleted;`) as UserAuthRow[];
+    
+  if (!query.length) return null;
+
+  return UserAuthRowToUser(query[0]);;
+}
+
+export default async function Home() {
+  const router = useRouter();
+  const session = await verifySession();
+  if (!session) router.push(Paths.HOME);
+
+  // TODO: find way to make error go away. 
+  const profile = GetProfileById(session.id);
+
+  /**
+   * ProfileUpdate will be one of the tabs that is accessible from this page
+   * define that user profile has tabs in the page for group members
+   * <ProfileUpdate user={profile} />
+   * 
+   * 
+   */
+
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">

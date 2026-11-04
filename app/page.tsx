@@ -1,6 +1,41 @@
+import { Recipe } from "@/utils/types";
 import Image from "next/image";
+import { sql } from "./api/utils/_utils";
+import { IngredientRow, RecipeRow } from "./api/utils/db";
 
-export default function Home() {
+/**
+ * 
+ * implement the following hook for client components
+ * 
+ * const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
+  queryKey: ["recipes", category],
+  queryFn: ({ pageParam }) => getRecipes({ category, cursor: pageParam }),
+  initialPageParam: null as number | null,
+  getNextPageParam: (last) => last.nextCursor,   // null stops it
+});
+ */
+
+/**
+ * review AI recommendation for these queries
+ * 
+ */
+
+export async function GetInitialData(): Promise<Recipe[]> {
+  var query = 
+      (await sql`SELECT r.id, r.name, u.username, r.instructions FROM recipes r
+        INNER JOIN users u ON u.user_id = r.user_id
+        WHERE r.id_deleted = false;`) as RecipeRow[];
+      
+
+  const ingredients =
+      (await sql`SELECT rti.ingredient_id, i.name, rti.amount, rti.unit, rti.notes FROM recipe_to_ingredients rti
+        INNER JOIN ingredients i ON i.ingredient_id = rti.ingredient_id
+        WHERE rti.recipe_id = ${recipe.id};`) as IngredientRow[];
+
+    RowToRecipe(recipe.id, recipeInfo[0], ingredients))
+}
+
+export default async function Home() {
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
       <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">

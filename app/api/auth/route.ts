@@ -18,10 +18,18 @@ export async function POST(req: Request) {
     started using interfaces for DB row returns with factories that transform them into their intended object. makes code cleaner while also being secure.
 */
 
+/**
+ * IMPORTANT: After seeing presentations from other groups, I've realized that we haven't been working on the key functionality of the project
+ * key functionality is for users to add ingredients and then a recommendation is provided for those ingredients.
+ * 
+ * TAKEAWAYS:
+ *  put focus on implementing these features
+ */
+
 async function logInCheck(req: Request, resp: ChefResponse) {
   const user = await req.json();
   const query =
-    (await sql`SELECT User_id, Username, Password, Is_Admin FROM Users WHERE Email = ${user.email};`) as UserAuthRow[];
+    (await sql`SELECT User_id, Username, Password, Is_Admin FROM Users WHERE Email = ${user.email} AND NOT Is_deleted;`) as UserAuthRow[];
 
   if (!query.length) throw new ApiError(ErrorMessages.INVALID_EMAIL_PASSWORD_ERROR, { status: 400 });
   const userInfo = query[0];
