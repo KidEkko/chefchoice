@@ -1,7 +1,6 @@
-import { Recipe } from "@/utils/types";
-import Image from "next/image";
-import { sql } from "./api/utils/_utils";
-import { IngredientRow, RecipeRow } from "./api/utils/db";
+import { sql } from "@/utils";
+import { Ingredient, IngredientRow, IngredientRowsToIngredient } from "@/utils/types";
+import Image from "next/image"; 
 
 /**
  * 
@@ -20,20 +19,6 @@ import { IngredientRow, RecipeRow } from "./api/utils/db";
  * 
  */
 
-export async function GetInitialData(): Promise<Recipe[]> {
-  var query = 
-      (await sql`SELECT r.id, r.name, u.username, r.instructions FROM recipes r
-        INNER JOIN users u ON u.user_id = r.user_id
-        WHERE r.id_deleted = false;`) as RecipeRow[];
-      
-
-  const ingredients =
-      (await sql`SELECT rti.ingredient_id, i.name, rti.amount, rti.unit, rti.notes FROM recipe_to_ingredients rti
-        INNER JOIN ingredients i ON i.ingredient_id = rti.ingredient_id
-        WHERE rti.recipe_id = ${recipe.id};`) as IngredientRow[];
-
-    RowToRecipe(recipe.id, recipeInfo[0], ingredients))
-}
 
 /**
  * Base page requirements:
@@ -143,4 +128,11 @@ export default async function Home() {
       </main>
     </div>
   );
+}
+
+// Server Component Query to retrieve Ingredients from DB
+// Ingredients table is intended to be lightweight, making fetches on the whole table inexpensive
+async function GetIngredients(): Promise<Ingredient[]> {
+  const query = (await sql`SELECT * FROM Ingredients i`) as IngredientRow[];
+  return IngredientRowsToIngredient(query)
 }

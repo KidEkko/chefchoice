@@ -1,8 +1,7 @@
 
 import { ErrorMessages } from "@/serverConfig"; 
-import { User } from "../types/user";
-import { ApiResult, request } from "./request";
-import { Recipe } from "../types/recipe";
+import { User, Recipe, Ingredient } from "../types";
+import { ApiResult, request } from "./"; 
 
 const PubRequests = Object.freeze({
   Username: "getUser",
@@ -12,6 +11,7 @@ const PubRequests = Object.freeze({
   GetRecipe: "getRecipe",
   AddRecipe: "addRecipe",
   GetPrep: "getMealPrep",
+  GetRecommendations: "recommendRecipes"
 });
 
 // Helper function for basic POST requests
@@ -46,4 +46,8 @@ export async function GetRecipe(recipeId: number): Promise<ApiResult<Recipe>> {
 
 export async function AddRecipe(recipe: Recipe): Promise<ApiResult<Recipe>> {
     return request<Recipe>(PubRequests.AddRecipe, ErrorMessages.GENERIC_ERROR, post(recipe));
+}
+
+export async function RecommendRecipes(ingredients: Ingredient[]): Promise<ApiResult<Recipe[]>> {
+    return request<Recipe[]>(PubRequests.GetRecommendations, ErrorMessages.GENERIC_ERROR, post(ingredients));
 }

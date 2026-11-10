@@ -1,8 +1,8 @@
-import { GenericHandler, sql, ChefResponse } from "@/app/api/utils/_utils";  
-import { SaltyPass } from "@/app/api/utils/_passwords";
+import { GenericHandler, ChefResponse } from "@/utils/api";   
 import { createSession } from "@lib/session";
 import { RoleString } from "@/serverConfig";
 import { ApiError, User } from "@/utils/types";
+import { sql, SaltyPass } from "@/utils";
 
 const PROCESS = "User Signup";
 export async function POST(req: Request) {
@@ -15,7 +15,6 @@ async function addUser(req: Request, resp: ChefResponse) {
   // TODO: should we do something different if is_deleted is true? think about it
   var query =
     await sql`SELECT 1 FROM Users WHERE Email = ${user.email};`;
-
   if (!!query.length) throw new ApiError("Invalid Email. Please Try A Different One.", {status: 400});
 
   const pass = SaltyPass(user.password);

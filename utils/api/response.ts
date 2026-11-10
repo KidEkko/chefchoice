@@ -1,10 +1,6 @@
 import "server-only"
 
 import { ApiError } from "@/utils/types/api";
-import { neon } from "@neondatabase/serverless";
-
-// TODO: put this in a better spot that is accessible by server components and endpoints
-export const sql = neon(`${process.env.DATABASE_URL}`);
 
 export class ChefResponse {
   response: Response;

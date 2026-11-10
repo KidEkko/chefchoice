@@ -1,9 +1,8 @@
-import { ChefResponse, GenericHandler, sql } from "@/app/api/utils/_utils";
-import { checkPassword } from "@/app/api/utils/_passwords";
+import { ChefResponse, GenericHandler } from "@/utils/api"; 
 import { createSession } from "@lib/session";
-import { ApiError } from "@/utils/types";
-import { UserAuthRow, UserAuthRowToUser } from "../utils/db";
+import { ApiError, UserAuthRow, UserAuthRowToUser } from "@/utils/types"; 
 import { ErrorMessages } from "@/serverConfig";
+import { sql, checkPassword } from "@/utils"; 
 
 const PROCESS = "Authentication";
 export async function POST(req: Request) {

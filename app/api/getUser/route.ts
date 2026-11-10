@@ -1,6 +1,7 @@
-import { ChefResponse, GenericHandler } from "@/app/api/utils/_utils"; 
+import { ChefResponse, GenericHandler } from "@/utils/api/response"; 
 import { createLocalSession, verifySession } from "@/lib/session"; 
 
+// TODO: this might be replacable via server component checking
 const PROCESS = "Get User Via Token";
 export async function GET(req: Request) {
   return await GenericHandler(req, getUserWithToken, PROCESS);

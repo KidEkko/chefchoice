@@ -1,7 +1,8 @@
-import { ChefResponse, GenericHandler, sql } from "@/app/api/utils/_utils"; 
+import { ChefResponse, GenericHandler } from "@/utils/api"; 
 import { verifySession } from "@/lib/session";
 import { ApiError, Ingredient, Recipe } from "@/utils/types";
 import { ErrorMessages } from "@/serverConfig";
+import { sql } from "@/utils/sql";
 
 const PROCESS = "Add Recipe";
 export async function POST(req: Request) {

@@ -1,9 +1,8 @@
-import { ChefResponse, GenericHandler, sql } from "@/app/api/utils/_utils";
-import { checkPassword } from "@/app/api/utils/_passwords";
-import { verifySession } from "@lib/session"; 
-import { UserAuthRow } from "../utils/db/user";
-import { ApiError, User } from "@/utils/types";
+import { ChefResponse, GenericHandler } from "@/utils/api/response";
+import { verifySession } from "@lib/session";  
+import { ApiError, User, UserAuthRow } from "@/utils/types";
 import { ErrorMessages } from "@/serverConfig";
+import { sql, checkPassword } from "@/utils";
 
 const PROCESS = "Update User";
 export async function POST(req: Request) {

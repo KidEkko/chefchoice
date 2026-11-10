@@ -1,19 +1,3 @@
-const HOUR_IN_SECONDS: number = 60 * 60;
-const DAY_IN_SECONDS: number = HOUR_IN_SECONDS * 24;
-const SIX_DAYS_IN_SECONDS: number = HOUR_IN_SECONDS * 24 * 6;
-const WEEK_IN_SECONDS: number = HOUR_IN_SECONDS * 24 * 7;
-const MONTH_IN_SECONDS: number = DAY_IN_SECONDS * 31;
-const YEAR_IN_SECONDS: number = DAY_IN_SECONDS * 365;
-
-export const Seconds = Object.freeze({
-  Hour: HOUR_IN_SECONDS,
-  Day: DAY_IN_SECONDS,
-  SixDays: SIX_DAYS_IN_SECONDS,
-  Week: WEEK_IN_SECONDS,
-  Month: MONTH_IN_SECONDS,
-  Year: YEAR_IN_SECONDS,
-});
-
 export const CookieString = Object.freeze({
   UserToken: "user_token",
   Settings: "settings",

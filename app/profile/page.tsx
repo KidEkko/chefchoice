@@ -1,10 +1,9 @@
 import { verifySession } from "@/lib/session";
 import { Paths } from "@/serverConfig";
-import { User } from "@/utils/types";
+import { sql } from "@/utils";
+import { User, UserAuthRow, UserAuthRowToUser } from "@/utils/types";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { sql } from "../api/utils/_utils";
-import { UserAuthRow, UserAuthRowToUser } from "../api/utils/db";
+import { redirect, } from "next/navigation";
 
 // TODO: add option to delete and recover profile?
 async function GetProfileById(id: number): Promise<User | null> {
@@ -17,9 +16,8 @@ async function GetProfileById(id: number): Promise<User | null> {
 }
 
 export default async function Home() {
-  const router = useRouter();
   const session = await verifySession();
-  if (!session) router.push(Paths.HOME);
+  if (!session) redirect(Paths.HOME);
 
   // TODO: find way to make error go away. 
   const profile = GetProfileById(session.id);
