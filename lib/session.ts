@@ -1,7 +1,7 @@
 import "server-only";
 
 import { SignJWT, type JWTPayload, jwtVerify } from "jose";
-import { CookieString, Seconds } from "@util/constants";
+import { CookieString } from "@util/constants";
 import { cookies } from "next/headers";
 import { secureCookie } from "@/utils/cookies";
 import { User } from "@/utils/types/user";
@@ -35,13 +35,14 @@ export async function decrypt(session: string | Uint8Array | undefined): Promise
   return null;
 }
 
+const WEEK_IN_SECONDS: number = 60 * 60 * 24 * 7;
+
 // Current session format: { id, username, role }
-export async function createSession(session: User) {
-  const time = Seconds.Week;
-  const token = await encrypt({ ...session, time });
+export async function createSession(session: User) { 
+  const token = await encrypt({ ...session, WEEK_IN_SECONDS });
 
   const cookie = await cookies();
-  cookie.set(CookieString.UserToken, token, secureCookie(time));
+  cookie.set(CookieString.UserToken, token, secureCookie(WEEK_IN_SECONDS));
 }
 
 // TODO: add other local interactions in routes, to avoid issues and such
@@ -50,7 +51,7 @@ export async function createLocalSession(): Promise<User> {
   const token = await encrypt(localSesh);
 
   const cookie = await cookies();
-  cookie.set(CookieString.UserToken, token, secureCookie(Seconds.Week));
+  cookie.set(CookieString.UserToken, token, secureCookie(WEEK_IN_SECONDS));
   return localSesh as User;
 }
 

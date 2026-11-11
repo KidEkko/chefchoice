@@ -1,6 +1,4 @@
-import "server-only"
-
-import { ApiError } from "@/utils/types/api";
+import { ApiError } from "@/utils/types";
 
 export class ChefResponse {
   response: Response;
@@ -49,7 +47,6 @@ export async function GenericHandler(req: Request, handler: Handler, process: st
   const Resp = new ChefResponse();
 
   try {
-    // checkActive();
     await handler(req, Resp);
   } catch (err) {
     console.log(err)
@@ -60,19 +57,4 @@ export async function GenericHandler(req: Request, handler: Handler, process: st
 
   console.timeEnd(`${process}`);
   return await Resp.DataResponse();
-}
-
-export function cacheResponse(resp: Response, age: number) {
-  resp.headers.set("Vercel-CDN-Cache-Control", `max-age=${age}`);
-  resp.headers.set("CDN-Cache-Control", `max-age=${age}`);
-  resp.headers.set("Cache-Control", "max-age=10");
-  // TODO MAYBE: maybe add other caching?
-
-  return resp;
-}
-
-// In case I need to quickly shut things off in prod
-export function checkActive() {
-  if (process.env.ACTIVE !== "true")
-    throw new ApiError("Server is currently down.", {status: 500});
 }
