@@ -4,20 +4,32 @@ export interface Recipe {
   id: number,
   name: string;
   createdBy: string;
-  instructions: string;
+  instructions: string[];
   ingredients: Ingredient[];
   createdOn: Date;
-  rating: number | undefined;
+  rating?: number | undefined;
+  sourceUrl: string;
+  cookMinutes: number;
+  prepMinutes: number;
+  servings: number;
+  difficulty: "easy" | "medium" | "hard";
+  dietaryTags: string[];
 }
 
 export interface RecipeRow {
   id: number,
   name: string,
   username: string,
-  instructions: string,
+  instructions: string[],
   is_deleted: boolean,
   created_on: Date,
-  rating: number | undefined,
+  rating?: number | undefined,
+  sourceUrl: string;
+  cookMinutes: number;
+  prepMinutes: number;
+  servings: number;
+  difficulty: "easy" | "medium" | "hard";
+  dietaryTags: string[];
 }
 
 
@@ -32,6 +44,12 @@ export function RowToRecipe(id: number, recipeRow: RecipeRow, ingredientRows: In
     ingredients: IngredientRowsToIngredient(ingredientRows),
     createdOn: recipeRow.created_on,
     rating: recipeRow.rating,
+    sourceUrl: recipeRow.sourceUrl,
+    cookMinutes: recipeRow.cookMinutes,
+    prepMinutes: recipeRow.prepMinutes,
+    servings: recipeRow.servings,
+    difficulty: recipeRow.difficulty,
+    dietaryTags: recipeRow.dietaryTags,
   }
 }
 

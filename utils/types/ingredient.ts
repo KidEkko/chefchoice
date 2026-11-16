@@ -4,18 +4,18 @@ export interface Ingredient {
   id: number,
   name: string;
   amount: number;
-  unit: string;
+  unit?: string;
   cost: number;
-  notes: string;
+  note?: string;
 }
 
 export interface IngredientRow {
   ingredient_id: number,
   name: string,
   amount: number,
-  unit: string,
+  unit?: string,
   cost: number
-  notes: string
+  note?: string
 }
 
 function rowToIngredient(row: IngredientRow): Ingredient {
@@ -25,7 +25,7 @@ function rowToIngredient(row: IngredientRow): Ingredient {
     amount: row.amount,
     unit: row.unit,
     cost: row.cost,
-    notes: row.notes
+    note: row.note
   }
 }
 
@@ -36,7 +36,7 @@ function rToIRowToIngredient(iRow: IngredientRow, rToIRow: RecipeToIngredientRow
     cost: iRow.cost,
     amount: rToIRow.amount,
     unit: rToIRow.unit,
-    notes: rToIRow.notes
+    note: rToIRow.notes
   }
 }
 

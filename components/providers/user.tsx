@@ -45,7 +45,8 @@ export function UserProvider({ children }: UserProviderProps) {
   const login = useCallback((newUser: User) => setUser(newUser), []);
 
   const logout = useCallback(() => {
-    if (!PublicRoutes.includes(path)) router.push(Paths.HOME);
+    // TODO: Figure out how to prevent issues caused from this
+    // if (!PublicRoutes.includes(path)) router.push(Paths.HOME);
     setUser(null);
   }, [path, router]);
 

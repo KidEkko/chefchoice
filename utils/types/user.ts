@@ -1,6 +1,7 @@
 import { GetRoleString } from "@/serverConfig";
 
 export interface User {
+    avatar: string;
     id: number;
     username: string;
     role: string;
@@ -19,6 +20,7 @@ export interface UserAuthRow {
 
 export function UserAuthRowToUser(row: UserAuthRow): User {
   return {
+    avatar: "",
     id: row.user_id,
     username: row.username,
     role: GetRoleString(row.is_admin),

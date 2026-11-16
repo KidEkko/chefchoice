@@ -2,7 +2,12 @@ CREATE TABLE recipes (
   recipe_id serial primary key,
   name text not null,
   user_id integer references users,
-  instructions text,
+  instructions text[],
   created_on timestamptz default current_date,
-  is_deleted boolean not null default false
+  is_deleted boolean not null default false,
+  source: text,
+  servings: integer,
+  prep_minutes: integer,
+  cook_minutes: integer,
+  difficulty: text
 );

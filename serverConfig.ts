@@ -1,5 +1,3 @@
-import "server-only";
-
 export const RoleString = Object.freeze({
     Owner: "chef_owner_user",
     Admin: "chef_admin_user",
