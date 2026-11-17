@@ -47,3 +47,9 @@ export const monthStrings: readonly string[] = [
   "November",
   "December",
 ];
+
+export function NormalString(s: string): string {
+  s = s.trim();
+  if (s.length === 0) return s;
+  return `${s[0].toUpperCase()}${s.slice(1).toLocaleLowerCase()}`;
+}

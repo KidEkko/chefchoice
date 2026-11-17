@@ -20,9 +20,9 @@ export const testRecipes: Recipe[] = [
     dietaryTags: ["gluten-free"],
     ingredients: [
       { id: 0, name: "potatoes", amount: 1, unit: "lb", note: "small, halved", cost: 0 },
-      { id: 1, name: "ribeye steak", amount: 1, unit: "1", note: "1.5 to 2 inches thick", cost: 0 },
-      { id: 2, name: "salt", amount: 0, unit: "null", note: "kosher" , cost: 0 },
-      { id: 3, name: "black pepper", amount: 0, unit: "null", note: "freshly ground", cost: 0 },
+      { id: 1, name: "ribeye steak", amount: 1, note: "1.5 to 2 inches thick", cost: 10.5 },
+      { id: 2, name: "salt", amount: 0, note: "kosher" , cost: 0 },
+      { id: 3, name: "black pepper", amount: 0,  note: "freshly ground", cost: 0 },
       { id: 4, name: "vegetable oil", amount: 3, unit: "tbsp", cost: 0 },
       { id: 5, name: "butter", amount: 4, unit: "tbsp", cost: 0 },
       { id: 6, name: "rosemary", amount: 2, unit: "sprigs", cost: 0 },

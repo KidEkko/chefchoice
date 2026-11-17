@@ -1,9 +1,21 @@
-import { Recipe } from "@/utils/types"
+import { Ingredient, Recipe } from "@/utils/types"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion"
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card"
 import { Heart } from "lucide-react"
 import Image from "next/image"
 import { Item, ItemContent } from "../ui/item"
+import { NormalString } from "@/utils/constants"
+
+
+// {recipe.ingredients.map((ing) => {
+//     return ( 
+//     <Item size="xs" className="bg- p-1 text-xs rounded-lg border border-white truncate text-center w-32 " key={ing.id}>
+//         <ItemContent>
+//             {ing.name}
+//         </ItemContent>
+//     </Item>
+//     )
+// })}
 
 export function RecipeCard({recipe, ...props}: {recipe: Recipe}) { 
     return ( 
@@ -25,17 +37,11 @@ export function RecipeCard({recipe, ...props}: {recipe: Recipe}) {
             </CardHeader>
             <CardContent>
                 <div className="flex flex-row justify-between space-x-2">
-                    <div className="flex flex-1 max-w-3/4 space-x-2 space-y-2 flex-wrap justify-center">
-                        {recipe.ingredients.map((ing) => {
-                            return ( 
-                            <Item size="xs" className="bg- p-1 text-xs rounded-lg border border-white truncate text-center w-32 " key={ing.id}>
-                                <ItemContent>
-                                    {ing.name}
-                                </ItemContent>
-                            </Item>
-                            )
+                    <ol className="flex flex-col flex-1 max-w-3/4">
+                        {recipe.ingredients.map((ing, i) => {
+                            return <IngredientRow ingredient={ing} key={i} />
                         })}
-                    </div>
+                    </ol>
                     <Image
                         className="dark:invert h-5 w-[100px]"
                         src="/next.svg"
@@ -65,7 +71,7 @@ export function RecipeCard({recipe, ...props}: {recipe: Recipe}) {
                             <ol className="space-y-2">
                                 {recipe.instructions.map((instruction, i) => {
                                     const step = `${i+1}. ${instruction}`
-                                    return <li>{step}</li>
+                                    return <li key={i}>{step}</li>
                                 })}
                             </ol>
                         </AccordionContent>
@@ -73,5 +79,19 @@ export function RecipeCard({recipe, ...props}: {recipe: Recipe}) {
                 </Accordion> 
             </CardFooter>
         </Card> 
+    )
+}
+
+
+function IngredientRow({ ingredient, multiplier = 1, ...props }: { ingredient: Ingredient, multiplier?: number }) {
+    const s = `${ingredient.amount || ""} ${ingredient.unit || ""} ${NormalString(ingredient.name)} `
+    return (
+        <Item asChild>
+            <li className="flex flex-row flex-1 pt-0.5 pb-0.5 justify-between" {...props} key={ingredient.name}>
+                <p>{s.trim()}</p>
+                {/* Cost is amount required times the base cost. Include multiplier if user alters it. */}
+                <p className="text-">${ingredient.cost * ingredient.amount * multiplier}</p>
+            </li>
+        </Item>
     )
 }

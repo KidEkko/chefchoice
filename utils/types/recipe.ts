@@ -41,7 +41,7 @@ export function RowToRecipe(id: number, recipeRow: RecipeRow, ingredientRows: In
     name: recipeRow.name,
     createdBy: recipeRow.username,
     instructions: recipeRow.instructions,
-    ingredients: IngredientRowsToIngredient(ingredientRows),
+    ingredients: IngredientRowsToIngredient(ingredientRows), // TODO: are we adding selecting here?
     createdOn: recipeRow.created_on,
     rating: recipeRow.rating,
     sourceUrl: recipeRow.sourceUrl,

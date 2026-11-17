@@ -1,3 +1,5 @@
+import { IngredientPicker } from "@/components/ingredients/IngredientPicker";
+import { PantryItemRow } from "@/components/ingredients/PantryItemRow";
 import { RecipeCard } from "@/components/recipe/RecipeCard";
 import { sql } from "@/utils";
 import { testRecipes } from "@/utils/testData";
@@ -60,13 +62,12 @@ import { Ingredient, IngredientRow, IngredientRowsToIngredient } from "@/utils/t
  */
 
 export default async function Home() {
+  const ingredients = await GetIngredients();
   return (
     <div className="flex flex-col flex-1 items-center justify-center font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 sm:items-start">
-        <div className="flex flex-row max-w-4xl">
-          <div>
-
-          </div>
+      <main className="flex flex-1 w-full max-w-7xl flex-col items-center justify-between py-32 px-16 sm:items-start">
+        <div className="flex flex-row max-w-5xl mx-auto space-x-5">
+          <IngredientPicker ings={ingredients} />
           <div className="space-y-2"> 
             {testRecipes.map((recipe) => {
               return <RecipeCard recipe={recipe} key={recipe.id}/>
