@@ -1,4 +1,4 @@
-import "server-only";
+"use server";
 
 import { SignJWT, type JWTPayload, jwtVerify } from "jose";
 import { CookieString } from "@util/constants";
