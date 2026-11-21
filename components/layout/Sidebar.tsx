@@ -1,3 +1,5 @@
+"use client"
+
 import {
   Sidebar,
   SidebarContent,
@@ -12,79 +14,94 @@ import {
 } from "@/components/ui/sidebar"
 import { Apple, Heart, HomeIcon, LucideIcon, NotebookPen } from "lucide-react" 
 import { NavUser } from "./NavUser" 
-
-// TODO: Rename this and maybe move it to a util file?
-interface SideBarWhatever {
-    navMain: SideBarData[]
-}
-
-interface SideBarData {
-    title: string, 
-    items: SideBarItem[]
-}
+import { usePathname } from "next/navigation"
+import { useCallback, useEffect, useState } from "react"
 
 interface SideBarItem {
+    title: string, 
+    tabs: SideBarTab[]
+}
+
+interface SideBarTab {
     title: string,
-    url: string,
+    path: string,
     icon: LucideIcon,
     isActive?: boolean
 }
 
-const data: SideBarWhatever = {
-  navMain: [
+const data: SideBarItem[] = [
     {
         title: "Features", 
-        items: [
+        tabs: [
             {
               title: "Home",
-              url: "#",
+              path: "",
               icon: HomeIcon,
             },
             {
               title: "Your Pantry",
-              url: "pantry",
-              isActive: true,
+              path: "pantry",
               icon: Apple,
             },
         ],
     },
     {
         title: "Recipes",
-        items: [
+        tabs: [
             {
                 title: "All",
-                url: "recipes",
+                path: "recipes",
                 icon: NotebookPen,
             },
             {
                 title: "Favorites",
-                url: "favorites",
+                path: "favorites",
                 icon: Heart,
             },
         ]
     }
-  ],
-}
+];
 
 export function AppSidebar() {
+  const [tabs, setTabs] = useState<SideBarItem[]>(data);
+  const path = usePathname();
+
+  // Whenever the path changes, update the tabs to reflect which path is currently active
+  useEffect(() => {
+    setTabs(currentTabs => currentTabs.map(item => updateSideBarItem(item)))
+  },[path])
+
+  // Tabs are updated to reflect which is active based on current path
+  const updateSideBarItem = useCallback((item: SideBarItem) => {
+    // Remove leading '/' and split the remaining path to ensure we're matching just the path name
+    // Does not currently account for query strings. 
+    // TODO: account for query strings
+    const strippedPath = path.slice(1).split("/");
+    item.tabs = item.tabs.map(tab => {
+      tab.isActive = tab.path === strippedPath[0];
+      return tab;
+    })
+    return item;
+  },[path, tabs])
+
   return (
     <Sidebar side="left" variant="sidebar" collapsible="icon">
       <SidebarHeader />
       <SidebarContent>
         {/* We create a SidebarGroup for each parent. */}
-        {data.navMain.map((item) => (
+        {tabs.map((item) => (
           <SidebarGroup key={item.title}>
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {item.items.map((item) => {
-                    const Icon = item.icon;
+                {item.tabs.map((tab) => {
+                    const Icon = tab.icon;
                     return (
-                        <SidebarMenuItem key={item.title}>
-                            <SidebarMenuButton asChild isActive={item.isActive}>
-                                <a href={item.url}>
+                        <SidebarMenuItem key={tab.title}>
+                            <SidebarMenuButton asChild isActive={tab.isActive}>
+                                <a href={tab.path}>
                                   <Icon />
-                                  {item.title}
+                                  {tab.title}
                                 </a>
                             </SidebarMenuButton>
                         </SidebarMenuItem>

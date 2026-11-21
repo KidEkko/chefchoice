@@ -9,20 +9,18 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { Paths, PublicRoutes } from "@util/constants";
-import { useLoading } from "@util/customHooks";
 import { usePathname, useRouter } from "next/navigation";
 import { User } from "@/utils/types/user"
-import { GetUserWithToken } from "@/utils/api/endpoints";
 
 
 export interface UserContextType {
-  user: User | null;
+  user: User | undefined;
   login: (newUser: User) => void;
   logout: () => void;
 }
 
 interface UserProviderProps {
+  initialUser: User | undefined
   children?: ReactNode;
 }
 
@@ -36,9 +34,8 @@ export function useUser(): UserContextType {
   return context;
 }
 
-export function UserProvider({ children }: UserProviderProps) {
-  const [user, setUser] = useState<User | null>(null);
-  const { loading: uLoading, stopLoading: uStop } = useLoading(true);
+export function UserProvider({ initialUser, children }: UserProviderProps) {
+  const [user, setUser] = useState<User | undefined>(initialUser);
   const router = useRouter();
   const path = usePathname() ?? "";
 
@@ -47,7 +44,7 @@ export function UserProvider({ children }: UserProviderProps) {
   const logout = useCallback(() => {
     // TODO: Figure out how to prevent issues caused from this
     // if (!PublicRoutes.includes(path)) router.push(Paths.HOME);
-    setUser(null);
+    setUser(undefined);
   }, [path, router]);
 
   const ctx = useMemo<UserContextType>(
@@ -55,25 +52,15 @@ export function UserProvider({ children }: UserProviderProps) {
     [user, login, logout]
   );
 
-  useEffect(() => {
-    async function getUser() {
-      const resp = await GetUserWithToken();
-      if (resp.ok) login(resp.data)
-      uStop();
-    }
+  // useEffect(() => {
+  //   async function getUser() {
+  //     const resp = await GetUserWithToken();
+  //     if (resp.ok) login(resp.data)
+  //     uStop();
+  //   }
 
-    getUser();
-  }, []);
-
-  if (uLoading) {
-    // TODO: Design default skeleton look for pages to display while loading.
-    
-    return (
-      <>
-      <p>Hello World</p>
-      </>
-    );
-  }
+  //   getUser();
+  // }, []);
 
   return <UserContext.Provider value={ctx}>{children}</UserContext.Provider>;
 }

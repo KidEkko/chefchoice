@@ -21,6 +21,7 @@ export interface RecipeRow {
   name: string,
   username: string,
   instructions: string[],
+  ingredients: IngredientRow[];
   is_deleted: boolean,
   created_on: Date,
   rating?: number | undefined,
@@ -54,7 +55,27 @@ export function RowToRecipe(id: number, recipeRow: RecipeRow, ingredientRows: In
 }
 
 export function RowsToRecipes(recipeRows: RecipeRow[], ingredientRows: IngredientRow[][]): Recipe[] {
-  return recipeRows.map((row, i) => {
-    return RowToRecipe(row.id, row, ingredientRows[i])
-  })
+  return recipeRows.map((row, i) => RowToRecipe(row.id, row, ingredientRows[i]));
+}
+
+export function FullRowToRecipe(id: number, recipeRow: RecipeRow): Recipe {
+  return {
+    id: id,
+    name: recipeRow.name,
+    createdBy: recipeRow.username,
+    instructions: recipeRow.instructions,
+    ingredients: IngredientRowsToIngredient(recipeRow.ingredients),
+    createdOn: recipeRow.created_on,
+    rating: recipeRow.rating,
+    sourceUrl: recipeRow.sourceUrl,
+    cookMinutes: recipeRow.cookMinutes,
+    prepMinutes: recipeRow.prepMinutes,
+    servings: recipeRow.servings,
+    difficulty: recipeRow.difficulty,
+    dietaryTags: recipeRow.dietaryTags,
+  }
+}
+
+export function FullRowsToRecipes(recipeRows: RecipeRow[]): Recipe[] {
+  return recipeRows.map((row) => FullRowToRecipe(row.id, row));
 }

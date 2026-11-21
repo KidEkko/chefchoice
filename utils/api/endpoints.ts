@@ -23,10 +23,6 @@ function post(body: unknown): RequestInit {
     };
 }
 
-export async function GetUserWithToken(): Promise<ApiResult<User>> {
-    return request<User>(PubRequests.Username, ErrorMessages.DEFAULT_LOGIN_ERROR);
-}
-
 export function CreateNewUser(user: User): Promise<ApiResult<User>> {
     return request<User>(PubRequests.AddUser, ErrorMessages.DEFAULT_LOGIN_ERROR, post(user));
 }

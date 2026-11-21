@@ -11,6 +11,8 @@ const encodedKey = new TextEncoder().encode(secretKey);
 
 export type DecodedSession = User & JWTPayload;
 
+// Encrypt a payload using with jose
+// Uses a default of 1 week of time
 export async function encrypt(payload: JWTPayload): Promise<string> {
   var encoder = new SignJWT(payload)
   encoder.setProtectedHeader({ alg: "HS256" })
@@ -20,7 +22,9 @@ export async function encrypt(payload: JWTPayload): Promise<string> {
     .sign(encodedKey);
 }
 
-export async function decrypt(session: string | Uint8Array | undefined): Promise<DecodedSession | null> {
+// Decrypt a token
+// Primarily expected to be a User session token
+export async function decrypt(session: string | Uint8Array | undefined): Promise<DecodedSession | undefined> {
   if (session !== undefined) {
     try {
       const { payload } = await jwtVerify<DecodedSession>(session, encodedKey, {
@@ -32,7 +36,7 @@ export async function decrypt(session: string | Uint8Array | undefined): Promise
       console.log("Failed to verify session");
     }
   }
-  return null;
+  return;
 }
 
 const WEEK_IN_SECONDS: number = 60 * 60 * 24 * 7;
@@ -45,30 +49,34 @@ export async function createSession(session: User) {
   cookie.set(CookieString.UserToken, token, secureCookie(WEEK_IN_SECONDS));
 }
 
-// TODO: add other local interactions in routes, to avoid issues and such
+// Return a basic User object for Local testing
 export async function createLocalSession(): Promise<User> {
-  const localSesh = JSON.parse(process.env.LOCAL_SESSION || "");
-  const token = await encrypt(localSesh);
-
-  const cookie = await cookies();
-  cookie.set(CookieString.UserToken, token, secureCookie(WEEK_IN_SECONDS));
+  const localSesh = JSON.parse(`{"username": "dev", "role": "chef_admin_user"}`);
   return localSesh as User;
 }
 
-export async function updateSession(session: User): Promise<User | null> {
-  if (!session) return null;
+// Update a user's session
+// Function is called whenever a user is verified to extend their current cookie
+export async function updateSession(session: User | undefined): Promise<User | undefined> {
+  if (!session) return;
   await createSession(session);
   return session;
 }
 
-export async function verifySession() {
+// Verify a user's session
+// Check if they have cookies, confirm they have a user token, then try to decrypt the token
+// If they have an invalid token, delete it. Otherwise, update their session 
+export async function verifySession(): Promise<User | undefined> {
   const token = await cookies();
-  if (!token) return null;
+  if (!token) return;
 
   const tokenString = token.get(CookieString.UserToken)?.value;
   const session = await decrypt(tokenString);
 
-  if (!session) return deleteSession();
+  if (!session && tokenString) {
+    deleteSession();
+    return;
+  } 
   return await updateSession(session);
 }
 

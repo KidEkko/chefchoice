@@ -14,7 +14,7 @@ export function IngredientPicker({ ings }: { ings: Ingredient[]}) {
     // Callback function that will update an ingredient by finding the unique id 
     const updateIngredient = useCallback((ingredient: Ingredient, selected: boolean) => { 
         setIngredients(prevIngs => prevIngs.map(ing =>
-            ing.id === ingredient.id ? { ...ingredient, selected: selected } : ing
+            ing.id === ingredient.id ? { ...ing, selected: selected } : ing
         )
         // When updating the array, push unselected items to the bottom
         // TODO: Might not be desirable for UX. Need to Examine

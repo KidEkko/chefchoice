@@ -8,8 +8,6 @@ import { AppSidebar } from "@/components/layout/Sidebar";
 import { UserProvider } from "@/components/providers";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/layout/Header";
-import { User } from "@/utils/types";
-import { createLocalSession, verifySession } from "@/lib/session";
 import { GetUserWithToken } from "./actions";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
@@ -30,6 +28,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
+  // Check User for their Cookie before loading the page
   const user = await GetUserWithToken();
 
   return (
@@ -45,8 +44,15 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           enableSystem
           disableTransitionOnChange
         >
+          {
+          /**
+           * First, Tooltips to ensure everything can have a Tooltip
+           * Second, UserProvider to ensure that useUser can be called anywhere
+           * Finally, SidebarProvider as the Sidebar will be constant throughout the website
+           */
+          }
           <TooltipProvider>
-            <UserProvider>
+            <UserProvider initialUser={user}>
               <SidebarProvider>
                 <AppSidebar />
                 <SidebarInset>
