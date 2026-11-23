@@ -7,7 +7,7 @@
       
 
 //   const ingredients =
-//       (await sql`SELECT rti.ingredient_id, i.name, rti.amount, rti.unit, rti.notes FROM recipe_to_ingredients rti
+//       (await sql`SELECT rti.ingredient_id, i.name, rti.amount, rti.unit, rti.note FROM recipe_to_ingredients rti
 //         INNER JOIN ingredients i ON i.ingredient_id = rti.ingredient_id
 //         WHERE rti.recipe_id = ${recipe.id};`) as IngredientRow[];
 

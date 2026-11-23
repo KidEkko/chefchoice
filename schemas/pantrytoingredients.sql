@@ -4,5 +4,5 @@ CREATE TABLE pantry_to_ingredients (
   ingredient_id integer references ingredients,
   amount numeric not null,
   unit text not null,
-  notes text
+  note text
 );

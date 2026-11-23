@@ -1,7 +1,7 @@
 import { Ingredient, IngredientRow, IngredientRowsToIngredient } from "./ingredient";
 
 export interface Recipe {
-  id: number,
+  recipeId?: number,
   name: string;
   createdBy: string;
   instructions: string[];
@@ -17,11 +17,11 @@ export interface Recipe {
 }
 
 export interface RecipeRow {
-  id: number,
+  recipe_id?: number,
   name: string,
   username: string,
   instructions: string[],
-  ingredients: IngredientRow[];
+  ingredients: Ingredient[];
   is_deleted: boolean,
   created_on: Date,
   rating?: number | undefined,
@@ -36,13 +36,16 @@ export interface RecipeRow {
 
 
 // TODO: confirm we want id to be separate here or if we add the id to the row construction
-export function RowToRecipe(id: number, recipeRow: RecipeRow, ingredientRows: IngredientRow[]): Recipe {
+export function RowToRecipe(recipeRow: RecipeRow, ingredientRows?: IngredientRow[]): Recipe {
+  const ingredients = ingredientRows ? 
+    IngredientRowsToIngredient(ingredientRows) : 
+    recipeRow.ingredients;
   return {
-    id: id,
+    recipeId: recipeRow.recipe_id,
     name: recipeRow.name,
     createdBy: recipeRow.username,
     instructions: recipeRow.instructions,
-    ingredients: IngredientRowsToIngredient(ingredientRows), // TODO: are we adding selecting here?
+    ingredients: ingredients, // TODO: are we adding selecting here?
     createdOn: recipeRow.created_on,
     rating: recipeRow.rating,
     sourceUrl: recipeRow.sourceUrl,
@@ -54,28 +57,15 @@ export function RowToRecipe(id: number, recipeRow: RecipeRow, ingredientRows: In
   }
 }
 
-export function RowsToRecipes(recipeRows: RecipeRow[], ingredientRows: IngredientRow[][]): Recipe[] {
-  return recipeRows.map((row, i) => RowToRecipe(row.id, row, ingredientRows[i]));
-}
-
-export function FullRowToRecipe(id: number, recipeRow: RecipeRow): Recipe {
-  return {
-    id: id,
-    name: recipeRow.name,
-    createdBy: recipeRow.username,
-    instructions: recipeRow.instructions,
-    ingredients: IngredientRowsToIngredient(recipeRow.ingredients),
-    createdOn: recipeRow.created_on,
-    rating: recipeRow.rating,
-    sourceUrl: recipeRow.sourceUrl,
-    cookMinutes: recipeRow.cookMinutes,
-    prepMinutes: recipeRow.prepMinutes,
-    servings: recipeRow.servings,
-    difficulty: recipeRow.difficulty,
-    dietaryTags: recipeRow.dietaryTags,
-  }
-}
-
-export function FullRowsToRecipes(recipeRows: RecipeRow[]): Recipe[] {
-  return recipeRows.map((row) => FullRowToRecipe(row.id, row));
+export function RowsToRecipes(recipeRows: RecipeRow[], ingredientRows?: IngredientRow[][]): Recipe[] {
+  const ingredientRowsProvided = !!ingredientRows;
+  return recipeRows.map((row, i) => {
+    if (ingredientRowsProvided) {
+      row = { 
+        ...row, 
+        ingredients: IngredientRowsToIngredient(ingredientRows[i]) 
+      }
+    }
+    return RowToRecipe(row)
+  });
 }

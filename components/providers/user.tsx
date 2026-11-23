@@ -4,13 +4,13 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
   useState,
   type ReactNode,
 } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { User } from "@/utils/types/user"
+import { User } from "@/utils/types"
+import { Paths } from "@/serverConfig";
 
 
 export interface UserContextType {
@@ -43,7 +43,7 @@ export function UserProvider({ initialUser, children }: UserProviderProps) {
 
   const logout = useCallback(() => {
     // TODO: Figure out how to prevent issues caused from this
-    // if (!PublicRoutes.includes(path)) router.push(Paths.HOME);
+    //if (!PublicRoutes.includes(path)) router.push(Paths.HOME);
     setUser(undefined);
   }, [path, router]);
 
@@ -51,16 +51,6 @@ export function UserProvider({ initialUser, children }: UserProviderProps) {
     () => ({ user, login, logout }),
     [user, login, logout]
   );
-
-  // useEffect(() => {
-  //   async function getUser() {
-  //     const resp = await GetUserWithToken();
-  //     if (resp.ok) login(resp.data)
-  //     uStop();
-  //   }
-
-  //   getUser();
-  // }, []);
 
   return <UserContext.Provider value={ctx}>{children}</UserContext.Provider>;
 }

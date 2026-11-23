@@ -5,9 +5,9 @@ CREATE TABLE recipes (
   instructions text[],
   created_on timestamptz default current_date,
   is_deleted boolean not null default false,
-  source: text,
-  servings: integer,
-  prep_minutes: integer,
-  cook_minutes: integer,
-  difficulty: text
+  source_url text,
+  servings integer,
+  prep_minutes integer,
+  cook_minutes integer,
+  difficulty text
 );

@@ -8,7 +8,8 @@ import { AppSidebar } from "@/components/layout/Sidebar";
 import { UserProvider } from "@/components/providers";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/layout/Header";
-import { GetUserWithToken } from "./actions";
+import { GetUserPantry, GetUserWithToken } from "./actions";
+import { PantryProvider } from "@/components/providers/pantry";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
@@ -30,6 +31,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: LayoutProps<"/">) {
   // Check User for their Cookie before loading the page
   const user = await GetUserWithToken();
+  const pantry = await GetUserPantry(user);
 
   return (
     <html
@@ -47,19 +49,21 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           {
           /**
            * First, Tooltips to ensure everything can have a Tooltip
-           * Second, UserProvider to ensure that useUser can be called anywhere
+           * Second, Providers to ensure that context functions can be called anywhere
            * Finally, SidebarProvider as the Sidebar will be constant throughout the website
            */
           }
           <TooltipProvider>
             <UserProvider initialUser={user}>
-              <SidebarProvider>
-                <AppSidebar />
-                <SidebarInset>
-                  <Header />
-                  {children}
-                </SidebarInset>
-              </SidebarProvider>
+              <PantryProvider initialPantry={pantry}>
+                <SidebarProvider>
+                  <AppSidebar />
+                  <SidebarInset>
+                    <Header />
+                    {children}
+                  </SidebarInset>
+                </SidebarProvider>
+              </PantryProvider>
             </UserProvider>
           </TooltipProvider>
         </ThemeProvider>

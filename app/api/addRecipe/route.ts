@@ -15,12 +15,11 @@ async function addRecipe(req: Request, resp: ChefResponse) {
       if (!session) // TODO: Error message string for invalid session
           throw new ApiError(ErrorMessages.INVALID_SESSION_ERROR, {status: 400})
 
-    console.log("starting");
 
     const recipe = await req.json() as Recipe;
-    console.log("Recipe: ", recipe);
-    const row = await sql`INSERT INTO Recipes (name, user_id, instructions) 
-        VALUES (${recipe.name}, ${1}, ${recipe.instructions}) RETURNING recipe_id;`;
+    
+    const row = await sql`INSERT INTO Recipes (name, user_id, instructions, servings, prep_minutes, cook_minutes, difficulty) 
+        VALUES (${recipe.name}, ${session.id}, ${recipe.instructions}, ${recipe.servings}, ${recipe.prepMinutes}, ${recipe.cookMinutes}, ${recipe.difficulty}) RETURNING recipe_id;`;
 
     /**
      * Return for Neon statements has type Record<string, any>[]
@@ -28,10 +27,9 @@ async function addRecipe(req: Request, resp: ChefResponse) {
      * Create the id to make it look nice
      */
     const recipeId = row[0].recipe_id
-    console.log("Return: ", recipeId)
 
     // Map all ingredients to a single comma-separated string for big insertion
-    const ingredients = recipe.ingredients.map((ingredient: Ingredient) => ingredient.name.trim().toLowerCase())
+    const ingredients = recipe.ingredients.map((ing: Ingredient) => ing.name.trim().toLowerCase())
 
     // On Conflict prevents issues where a known ingredient is inserted, but still allows the id and name to be returned
     const rows = await sql`INSERT INTO Ingredients (name) 
@@ -43,17 +41,20 @@ async function addRecipe(req: Request, resp: ChefResponse) {
     const idByName = new Map<string, number>(rows.map((r) => [r.name, r.ingredient_id]));
 
 
-    for (let i = 0; i < recipe.ingredients.length; i++) {
-        const id = idByName.get(recipe.ingredients[i].name) || 0; // 0 should NEVER happen
-        recipe.ingredients[i].id = id;
-    }
+    // Assign Ids through map function
+    recipe.ingredients.map(ing => { 
+        return {
+            ...ing, 
+            id: idByName.get(ing.name) 
+        }
+    })
 
     // transform our Ingredients recipe into a string record that Postgres can read.
     // https://www.postgresql.org/docs/9.5/functions-json.html
-    await sql`INSERT INTO Recipe_to_ingredients (recipe_id, ingredient_id, amount, unit, notes) 
-        SELECT ${recipeId}, x.id, x.amount, x.unit, x.notes
+    await sql`INSERT INTO Recipe_to_ingredients (recipe_id, ingredient_id, amount, unit, note) 
+        SELECT ${recipeId}, x.id, x.amount, x.unit, x.note
         FROM jsonb_to_recordset(${JSON.stringify(recipe.ingredients)}::jsonb)
-        AS x(id integer, amount numeric, unit text, notes text)`
+        AS x(id integer, amount numeric, unit text, note text)`
 
 
     return;

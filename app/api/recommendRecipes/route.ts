@@ -1,30 +1,27 @@
 import { ChefResponse, GenericHandler } from "@/utils/api"; 
 import { ApiError, Ingredient, RecipeRow } from "@/utils/types";  
 import { sql } from "@/utils";
-import { FullRowsToRecipes } from "@/utils/types/recipe";
+import { RowsToRecipes } from "@/utils/types/recipe";
 
 const PROCESS = "Recommend Recipes";
 export async function POST(req: Request) {
   return await GenericHandler(req, recommendRecipes, PROCESS);
 }
 
-/**
- * Expects a list of ingredients.
- * If a user inputs no ingredients, then they will be redirected to recipe page
- * 
- * Steps followed:
- *  Parse ingredients from the Request object
- *  Get an array of numbers from the ingredients to supply in our Query
- *  Retrieve a list of up to 5 recipe IDs that contain the ingredient IDs, sorted by the percentage of matching ingredients
- *  Once IDs have been retrieved, get all other important information for display
- */
 async function recommendRecipes(req: Request, resp: ChefResponse) {
+  // Parse ingredients from the user's request
+  // Create variable for initial Recipe Id query. Not necessary, but looks better than putting the map in the statement
   const ingredients = await req.json() as Ingredient[];
-  const ids = ingredients.map(ingredient => ingredient.id);
+  const ids = ingredients.filter(ing => !!ing.ingredientId).map(ingredient => ingredient.ingredientId);
   
   // Query for basic recipe information, confirming that it is not currently deleted
   // TODO: Comment more
-  const recipes =
+
+  // Query basic recipe information
+  // Base version of fetch prioritizes the percentage of ingredients in the user's query
+  // To that end, perform an inner query that gets total ingredient count by Id and number of matched Ids
+  // Sort within the query since it's simpler
+  const recommendations =
     (await sql`
       SELECT recipe_id, matched, total
       FROM (
@@ -38,20 +35,21 @@ async function recommendRecipes(req: Request, resp: ChefResponse) {
       ) scored
       WHERE matched > 0
       ORDER BY matched::numeric / total DESC , total - matched ASC, recipe_id
-      LIMIT 5;`) as RecommendationRow[];
+      LIMIT 10;`) as RecommendationRow[];
 
-  if (!recipes.length) throw new ApiError("No Recipes Found", { status: 400 });
+  if (!recommendations.length) throw new ApiError("No Recipes Found", { status: 400 });
 
-  const recipeIds = recipes.map(recipe => recipe.recipe_id);
+  // Create Recipe Id array for Full Query
+  const recipeIds = recommendations.map(recipe => recipe.recipe_id);
  
-  // Perform the more expensive query that also requires multiple rows now that we know we're good
-  const i =
+  // More expensive query fetching all relevant information 
+  const recipes =
     (await sql`
       SELECT r.recipe_id AS id, r.name, u.username, r.instructions, r.source, r.servings, r.prep_minutes, r.cook_minutes, r.difficulty,
         (
           SELECT json_agg(json_build_object(
               'name', i.name, 'cost', i.cost,
-              'unit', rti.unit, 'amount', rti.amount, 'note', rti.notes) ORDER BY i.name)
+              'unit', rti.unit, 'amount', rti.amount, 'note', rti.note) ORDER BY i.name)
               FROM recipe_to_ingredients rti 
               INNER JOIN ingredients i ON i.ingredient_id = rti.ingredient_id  
               WHERE rti.recipe_id = r.recipe_id
@@ -59,14 +57,13 @@ async function recommendRecipes(req: Request, resp: ChefResponse) {
         ) AS ingredients
       FROM recipes r
       INNER JOIN users u ON u.user_id = r.user_id
-      WHERE NOT is_deleted AND recipe_id = ANY(${recipeIds}::int[]);`) as RecipeRow[];
+      WHERE NOT r.is_deleted AND r.recipe_id = ANY(${recipeIds}::int[]);`) as RecipeRow[];
 
-  resp.setData(FullRowsToRecipes(i))
-
-
+  resp.setData(RowsToRecipes(recipes))
   return;
 }
 
+// Unique interface for Recommendation query
 interface RecommendationRow {
   recipe_id: number,
   total: number,

@@ -34,10 +34,13 @@ export function GetRoleString(isAdmin: boolean): string {
 
 export const Paths = Object.freeze({
     HOME: "/",
+    PROFILE: "/profile",
     ADMIN: "/admin",
     OWNER: "/owner",
     NOT_FOUND: "/404",
 });
+
+const UserRequiredRoutes: Array<string> = [Paths.OWNER];
 
 // TODO: delete or make these useful
 export const PathIcons = Object.freeze({

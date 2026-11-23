@@ -1,17 +1,18 @@
 
 import { ErrorMessages } from "@/serverConfig"; 
-import { User, Recipe, Ingredient } from "../types";
+import { User, Recipe, Ingredient, Pantry } from "../types";
 import { ApiResult, request } from "./"; 
 
 const PubRequests = Object.freeze({
-  Username: "getUser",
   AddUser: "signup",
   LogUser: "auth",
   UpdateUser: "userUpdate",
   GetRecipe: "getRecipe",
   AddRecipe: "addRecipe",
   GetPrep: "getMealPrep",
-  GetRecommendations: "recommendRecipes"
+  GetRecommendations: "recommendRecipes",
+  CreatePantry: "createPantry",
+  UpdatePantry: "updatePantry"
 });
 
 // Helper function for basic POST requests
@@ -46,4 +47,12 @@ export async function AddRecipe(recipe: Recipe): Promise<ApiResult<Recipe>> {
 
 export async function RecommendRecipes(ingredients: Ingredient[]): Promise<ApiResult<Recipe[]>> {
     return request<Recipe[]>(PubRequests.GetRecommendations, ErrorMessages.GENERIC_ERROR, post(ingredients));
+}
+
+export async function CreatePantry(pantry: Pantry): Promise<ApiResult<Pantry>> {
+    return request<Pantry>(PubRequests.CreatePantry, ErrorMessages.GENERIC_ERROR, post(pantry));
+}
+
+export async function UpdatePantry(pantry: Pantry): Promise<ApiResult<Pantry>> {
+    return request<Pantry>(PubRequests.UpdatePantry, ErrorMessages.GENERIC_ERROR, post(pantry));
 }

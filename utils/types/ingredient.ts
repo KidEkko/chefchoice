@@ -1,9 +1,9 @@
 import { RecipeToIngredientRow } from "./recipeToIngredient";
 
 export interface Ingredient {
-  id: number,
+  ingredientId: number,
   name: string;
-  amount: number;
+  amount?: number;
   unit?: string;
   cost: number;
   note?: string;
@@ -14,7 +14,7 @@ export interface Ingredient {
 export interface IngredientRow {
   ingredient_id: number;
   name: string;
-  amount: number;
+  amount?: number;
   unit?: string;
   cost: number;
   note?: string; 
@@ -22,7 +22,7 @@ export interface IngredientRow {
 
 function rowToIngredient(row: IngredientRow, selecting: boolean = false): Ingredient {
   return {
-    id: row.ingredient_id,
+    ingredientId: row.ingredient_id,
     name: row.name,
     amount: row.amount,
     unit: row.unit,
@@ -34,12 +34,12 @@ function rowToIngredient(row: IngredientRow, selecting: boolean = false): Ingred
 
 function rToIRowToIngredient(iRow: IngredientRow, rToIRow: RecipeToIngredientRow, selecting: boolean = false): Ingredient {
   return {
-    id: iRow.ingredient_id,
+    ingredientId: iRow.ingredient_id,
     name: iRow.name,
     cost: iRow.cost,
     amount: rToIRow.amount,
     unit: rToIRow.unit,
-    note: rToIRow.notes,
+    note: rToIRow.note,
     selected: selecting,
   }
 }

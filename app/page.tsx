@@ -70,7 +70,7 @@ export default async function Home() {
           <IngredientPicker ings={ingredients} />
           <div className="space-y-2"> 
             {testRecipes.map((recipe) => {
-              return <RecipeCard recipe={recipe} key={recipe.id}/>
+              return <RecipeCard recipe={recipe} key={recipe.name}/>
             })}
           </div>
         </div>
