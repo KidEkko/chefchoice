@@ -10,6 +10,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/layout/Header";
 import { GetUserPantry, GetUserWithToken } from "./actions";
 import { PantryProvider } from "@/components/providers/pantry";
+import { LayoutWrapper } from "@/components/layout/LayoutWrapper";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
@@ -53,21 +54,16 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
            * Finally, SidebarProvider as the Sidebar will be constant throughout the website
            */
           }
-          <TooltipProvider>
-            <UserProvider initialUser={user}>
-              <PantryProvider initialPantry={pantry}>
-                <SidebarProvider>
-                  <AppSidebar />
-                  <SidebarInset>
-                    <Header />
-                    {children}
-                  </SidebarInset>
-                </SidebarProvider>
-              </PantryProvider>
+                  <TooltipProvider>
+                <UserProvider>
+              <LayoutWrapper>
+              {children}
+             </LayoutWrapper>
             </UserProvider>
           </TooltipProvider>
         </ThemeProvider>
       </body>
     </html>
+
   );
 }
