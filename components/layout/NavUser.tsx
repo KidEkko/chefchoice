@@ -36,21 +36,24 @@ import {
 import { useUser } from "../providers" 
 import { Button } from "../ui/button"
 import Link from "next/link" 
+import { usePathname } from "next/navigation"
+import { Item } from "../ui/item"
 
 
 export function NavUser() {
   const { isMobile } = useSidebar();
-  const { user, login, logout } = useUser();
+  const { user, logout } = useUser();
+  const path = usePathname();
 
   // TODO: Refine
   if (!user) {
     return (
       <>
-        <Button className="cursor-pointer w-full">
-          <LogIn />
-          <Link href="login">
+        <Button className={`${path !== "/login" ? "cursor-pointer" : "cursor-not-allowed"} w-full`}>
+          <LogIn />{ path !== "/login" ?
+          <Link href="login" >
             Login
-          </Link>
+          </Link> : <Item>Login</Item>}
         </Button>
       </>
     )

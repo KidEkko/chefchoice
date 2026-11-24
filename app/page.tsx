@@ -1,11 +1,9 @@
 import { IngredientPicker } from "@/components/ingredients/IngredientPicker";
-import { PantryItemRow } from "@/components/ingredients/PantryItemRow";
 import { RecipeCard } from "@/components/recipe/RecipeCard";
 import { sql } from "@/utils";
 import { testRecipes } from "@/utils/testData";
 import { Ingredient, IngredientRow, IngredientRowsToIngredient } from "@/utils/types";
 import { cacheLife } from "next/cache";
-
 /**
  * 
  * implement the following hook for client components
@@ -17,8 +15,6 @@ import { cacheLife } from "next/cache";
   getNextPageParam: (last) => last.nextCursor,   // null stops it
 });
  */
-
-
 
 /**
  * Base page requirements:
@@ -64,20 +60,22 @@ import { cacheLife } from "next/cache";
 
 export default async function Home() {
   const ingredients = await GetIngredients();
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-7xl flex-col items-center justify-between py-32 px-16 sm:items-start">
-        <div className="flex flex-row max-w-5xl mx-auto space-x-5">
+    <div className="flex-1 w-full font-sans dark:bg-black">
+      <main className="w-full max-w-6xl mx-auto py-8 px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start w-full">
           <IngredientPicker ings={ingredients} />
-          <div className="space-y-2"> 
-            {testRecipes.map((recipe) => {
-              return <RecipeCard recipe={recipe} key={recipe.name}/>
-            })}
+
+          <div className="space-y-4 w-full">
+            {testRecipes.map((recipe) => (
+              <RecipeCard recipe={recipe} key={recipe.name} />
+            ))}
           </div>
         </div>
       </main>
     </div>
-  );
+  )
 }
 
 // Server Component Query to retrieve Ingredients from DB
@@ -86,6 +84,11 @@ async function GetIngredients(): Promise<Ingredient[]> {
   'use cache'
   cacheLife('hours')
   
-  const query = (await sql`SELECT * FROM Ingredients i`) as IngredientRow[];
-  return IngredientRowsToIngredient(query)
+  try {
+    const query = (await sql`SELECT * FROM ingredients `) as IngredientRow[];
+    return IngredientRowsToIngredient(query);
+  } catch (error) {
+    console.error("Database error:", error);
+    return [];
+  }
 }
