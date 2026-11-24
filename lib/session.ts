@@ -23,7 +23,7 @@ export async function encrypt(payload: JWTPayload): Promise<string> {
 }
 
 // Decrypt a token
-// Primarily expected to be a User session token
+// Expected to be a User session token
 export async function decrypt(session: string | Uint8Array | undefined): Promise<DecodedSession | undefined> {
   if (session !== undefined) {
     try {

@@ -73,12 +73,11 @@ export function AppSidebar() {
 
   // Tabs are updated to reflect which is active based on current path
   const updateSideBarItem = useCallback((item: SideBarItem) => {
-    // Remove leading '/' and split the remaining path to ensure we're matching just the path name
-    // Does not currently account for query strings. 
-    // TODO: account for query strings
-    const strippedPath = path.slice(1).split("/");
+    // Remove leading '/' and check that the current path at least starts with the tab's path
+    // Will also account for nested paths should we go that route
+    const strippedPath = path.slice(1);
     item.tabs = item.tabs.map(tab => {
-      tab.isActive = tab.path === strippedPath[0];
+      tab.isActive = strippedPath.startsWith(tab.path)
       return tab;
     })
     return item;

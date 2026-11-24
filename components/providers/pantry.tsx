@@ -36,7 +36,6 @@ export function PantryProvider({ initialPantry, children }: PantryProviderProps)
 
   const update = useCallback((newPantry: Pantry) => setPantry(newPantry), []);
 
-
   const ctx = useMemo<PantryContextType>(
     () => ({ pantry, update }),
     [pantry, update]

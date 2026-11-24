@@ -4,6 +4,7 @@ import { RecipeCard } from "@/components/recipe/RecipeCard";
 import { sql } from "@/utils";
 import { testRecipes } from "@/utils/testData";
 import { Ingredient, IngredientRow, IngredientRowsToIngredient } from "@/utils/types";
+import { cacheLife } from "next/cache";
 
 /**
  * 
@@ -82,6 +83,9 @@ export default async function Home() {
 // Server Component Query to retrieve Ingredients from DB
 // Ingredients table is intended to be lightweight, making fetches on the whole table inexpensive
 async function GetIngredients(): Promise<Ingredient[]> {
+  'use cache'
+  cacheLife('hours')
+  
   const query = (await sql`SELECT * FROM Ingredients i`) as IngredientRow[];
   return IngredientRowsToIngredient(query)
 }

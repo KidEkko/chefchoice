@@ -5,11 +5,10 @@ import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/Sidebar";
-import { UserProvider } from "@/components/providers";
+import { UserProvider, PantryProvider } from "@/components/providers";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/layout/Header";
 import { GetUserPantry, GetUserWithToken } from "./actions";
-import { PantryProvider } from "@/components/providers/pantry";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
