@@ -1,20 +1,7 @@
-import { IngredientPicker } from "@/components/ingredients/IngredientPicker";
-import { RecipeCard } from "@/components/recipe/RecipeCard";
 import { sql } from "@/utils";
-import { testRecipes } from "@/utils/testData";
 import { Ingredient, IngredientRow, IngredientRowsToIngredient } from "@/utils/types";
 import { cacheLife } from "next/cache";
-/**
- * 
- * implement the following hook for client components
- * 
- * const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
-  queryKey: ["recipes", category],
-  queryFn: ({ pageParam }) => getRecipes({ category, cursor: pageParam }),
-  initialPageParam: null as number | null,
-  getNextPageParam: (last) => last.nextCursor,   // null stops it
-});
- */
+import { PantryRecommender } from "@/components/pantry/PantryRecommender"; 
 
 /**
  * Base page requirements:
@@ -58,24 +45,19 @@ import { cacheLife } from "next/cache";
  *  
  */
 
+
 export default async function Home() {
   const ingredients = await GetIngredients();
 
   return (
-    <div className="flex-1 w-full font-sans dark:bg-black">
-      <main className="w-full max-w-6xl mx-auto py-8 px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start w-full">
-          <IngredientPicker ings={ingredients} />
-
-          <div className="space-y-4 w-full">
-            {testRecipes.map((recipe) => (
-              <RecipeCard recipe={recipe} key={recipe.name} />
-            ))}
-          </div>
-        </div>
-      </main>
-    </div>
-  )
+    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6">
+      <div className="space-y-1">
+        <h1 className="text-2xl font-semibold">Chef Choice</h1>
+        <p className="text-muted-foreground">Pick what you have, and we&apos;ll choose what&apos;s for dinner.</p>
+      </div>
+      <PantryRecommender ingredients={ingredients} />
+    </main>
+  );
 }
 
 // Server Component Query to retrieve Ingredients from DB

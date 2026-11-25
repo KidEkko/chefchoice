@@ -1,28 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { decrypt } from "@lib/session";
 import { CookieString } from "@util/constants";
-import { GetRoleNum, Paths, RoleLevels, RoleString } from "@/serverConfig"; 
+import { Paths } from "@/serverConfig";
 
-const OwnerProtectedRoutes: Array<string> = [Paths.OWNER];
-const AdminProtectedRoutes: Array<string> = [Paths.ADMIN];
+// Routes that require authentication
+const protectedRoutes = [Paths.PROFILE];
 
-export default async function middleware(req: NextRequest ) {
+export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
-  const isOwnerProtected = OwnerProtectedRoutes.includes(path);
-  const isAdminProtected = AdminProtectedRoutes.includes(path);
-  const isPublicRoute = !isOwnerProtected && !isAdminProtected;
 
-  if (isPublicRoute) return NextResponse.next();
+  // Check if the current path requires authentication
+  const isProtectedRoute = protectedRoutes.some(route => path.startsWith(route));
 
-  const cookie = req.cookies.get(CookieString.UserToken)?.value;
-  const session = await decrypt(cookie);
+  if (isProtectedRoute) {
+    const cookie = req.cookies.get(CookieString.UserToken)?.value;
+    const session = await decrypt(cookie);
 
-  const level = GetRoleNum(session?.role || RoleString.Basic);
-  switch (true) {
-    case !session?.username:
-    case isOwnerProtected && level < RoleLevels.Owner:
-    case isAdminProtected && level < RoleLevels.Admin:
-      return NextResponse.redirect(new URL(Paths.NOT_FOUND, req.nextUrl));
+    // Redirect to login if no valid session
+    if (!session?.username) {
+      return NextResponse.redirect(new URL(Paths.LOGIN, req.nextUrl));
+    }
   }
 
   return NextResponse.next();

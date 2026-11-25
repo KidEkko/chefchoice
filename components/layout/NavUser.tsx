@@ -6,7 +6,6 @@ import {
   Bell,
   ChevronsUpDown,
   CreditCard,
-  Heart,
   LogIn,
   LogOut,
   Sparkles,
@@ -33,11 +32,10 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { useUser } from "../providers" 
+import { useUser } from "../providers"
 import { Button } from "../ui/button"
-import Link from "next/link" 
+import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Item } from "../ui/item"
 
 
 export function NavUser() {
@@ -45,17 +43,19 @@ export function NavUser() {
   const { user, logout } = useUser();
   const path = usePathname();
 
-  // TODO: Refine
+  // Hide login button on login/signup pages when user is not logged in
   if (!user) {
+    if (path === "/login" || path === "/signup") {
+      return null;
+    }
+
     return (
-      <>
-        <Button className={`${path !== "/login" ? "cursor-pointer" : "cursor-not-allowed"} w-full`}>
-          <LogIn />{ path !== "/login" ?
-          <Link href="login" >
-            Login
-          </Link> : <Item>Login</Item>}
-        </Button>
-      </>
+      <Button asChild className="w-full">
+        <Link href="/login">
+          <LogIn />
+          Login
+        </Link>
+      </Button>
     )
   }
 
@@ -98,12 +98,6 @@ export function NavUser() {
                   My Pantry
                 </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link className="cursor-pointer" href="favorites">
-                  <Heart />
-                  My Favorites 
-                </Link>
-              </DropdownMenuItem> 
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild> 

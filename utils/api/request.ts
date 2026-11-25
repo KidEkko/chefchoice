@@ -27,7 +27,7 @@ async function genericFetch(endpoint: string, params?: QueryParams, headers?: Re
 const ok = <T>(data: T): ApiResult<T> => ({ ok: true, data });
 const fail = (error: ApiError): ApiResult<never> => ({ ok: false, error });
 
-export async function request<T>(path: string, fallback: string = ErrorMessages.GENERIC_ERROR, init?: RequestInit, params?: QueryParams): Promise<ApiResult<T>> {
+export async function request<T>(path: string, fallback: string = ErrorMessages.Server.GENERIC, init?: RequestInit, params?: QueryParams): Promise<ApiResult<T>> {
     let resp: Response;
     try {
         resp = await genericFetch(path, params, init);

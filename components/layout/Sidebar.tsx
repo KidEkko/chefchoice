@@ -45,21 +45,21 @@ const data: SideBarItem[] = [
             },
         ],
     },
-    {
-        title: "Recipes",
-        tabs: [
-            {
-                title: "All",
-                path: "recipes",
-                icon: NotebookPen,
-            },
-            {
-                title: "Favorites",
-                path: "favorites",
-                icon: Heart,
-            },
-        ]
-    }
+    // {
+    //     title: "Recipes",
+    //     tabs: [
+    //         {
+    //             title: "All",
+    //             path: "recipes",
+    //             icon: NotebookPen,
+    //         },
+    //         {
+    //             title: "Favorites",
+    //             path: "favorites",
+    //             icon: Heart,
+    //         },
+    //     ]
+    // }
 ];
 
 export function AppSidebar() {

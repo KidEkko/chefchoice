@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { FormEvent, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useUser } from "@/components/providers"
@@ -19,28 +19,37 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { User } from "@/utils/types"
+import { CreateNewUser } from "@/utils/api/endpoints"
 
-export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
+interface SignUpUser {
+  username: string,
+  email: string,
+  password: string,
+  confirmPassword: string
+}
+
+export function SignupForm() {
   const router = useRouter()
   const { login } = useUser()
-  const [username, setUsername] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [confirmPassword, setConfirmPassword] = useState("")
+  const [formData, setFormData] = useState<SignUpUser>({
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError("")
 
-    if (password.length < 8) {
+    if (formData.password.length < 8) {
       setError("Password must be at least 8 characters long.")
       return
     }
 
-    if (password !== confirmPassword) {
+    if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.")
       return
     }
@@ -48,12 +57,18 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
     setLoading(true)
 
     try {
-      // Log the newly created user into context and redirect to the dashboard
-      login({
-        id: 1,
-        username: email.split("@")[0],
-        email,
-      } as User)
+      const result = await CreateNewUser({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+      } as any);
+
+      if (!result.ok) {
+        setError(result.error.message);
+        return;
+      }
+
+      login(result.data);
       router.push("/")
     } catch (err: any) {
       setError(err.message || "Failed to create account.")
@@ -63,7 +78,7 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
   }
 
   return (
-    <Card {...props}>
+    <Card>
       <CardHeader>
         <CardTitle>Create an account</CardTitle>
         <CardDescription>
@@ -81,9 +96,9 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               <Input
                 id="name"
                 type="text"
-                placeholder="John Doe"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                placeholder="johndoe"
+                value={formData.username}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 required
               />
             </Field>
@@ -93,8 +108,8 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
                 id="email"
                 type="email"
                 placeholder="m@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
               />
             </Field>
@@ -103,8 +118,8 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               <Input
                 id="password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 required
               />
               <FieldDescription>
@@ -118,8 +133,8 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
               <Input
                 id="confirm-password"
                 type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 required
               />
               <FieldDescription>Please confirm your password.</FieldDescription>

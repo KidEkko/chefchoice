@@ -20,17 +20,23 @@ export async function POST(req: Request) {
 async function logInCheck(req: Request, resp: ChefResponse) {
   const user = await req.json();
   const query =
-    (await sql`SELECT User_id, Username, Password, Is_Admin FROM Users WHERE Email = ${user.email} AND NOT Is_deleted;`) as UserAuthRow[];
+    (await sql`SELECT User_id, username, password, email FROM Users WHERE Email = ${user.email} AND NOT is_deleted;`) as UserAuthRow[];
 
-  if (!query.length) throw new ApiError(ErrorMessages.INVALID_EMAIL_PASSWORD_ERROR, { status: 400 });
+  if (!query.length) throw new ApiError(ErrorMessages.Auth.INVALID_CREDENTIALS, { status: 401 });
   const userInfo = query[0];
 
   checkPassword(user.password, userInfo.password);
 
-  const response = { username: userInfo.username },
-    session = UserAuthRowToUser(userInfo);
-
+  // Create session with full user info (including password for session)
+  const session = UserAuthRowToUser(userInfo);
   await createSession(session);
+
+  // Return safe user object without password
+  const response = {
+    id: userInfo.user_id,
+    username: userInfo.username,
+    email: userInfo.email
+  };
 
   resp.setData(response);
   return;

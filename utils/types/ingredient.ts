@@ -5,7 +5,7 @@ export interface Ingredient {
   name: string;
   amount?: number;
   unit?: string;
-  cost: number;
+  cost?: number;
   note?: string;
   selected?: boolean;
 }
@@ -16,7 +16,7 @@ export interface IngredientRow {
   name: string;
   amount?: number;
   unit?: string;
-  cost: number;
+  cost?: number;
   note?: string; 
 }
 

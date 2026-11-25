@@ -16,35 +16,43 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { useState } from "react"
+import { FormEvent, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useUser } from "@/components/providers"
-import { User } from "@/utils/types"
+import { SubmitLogin } from "@/utils/api/endpoints"
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  const router = useRouter()
-  const { login } = useUser()
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
+interface LoginFormProps {
+  className?: string;
+}
 
-  async function handleSubmit(e: React.FormEvent) {
+export function LoginForm({ className }: LoginFormProps) {
+  const router = useRouter();
+  const { login } = useUser();
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     setError("")
     setLoading(true)
 
     try {
-      // Logs the user into context and redirects to the dashboard
-      login({
-        id: 1,
-        username: email.split("@")[0],
-        email,
-      } as User)
+      const result = await SubmitLogin({
+        email: formData.email,
+        password: formData.password,
+      } as any);
+
+      if (!result.ok) {
+        setError(result.error.message);
+        return;
+      }
+
+      login(result.data);
       router.push("/")
     } catch (err: any) {
       setError(err.message || "Failed to log in")
@@ -54,7 +62,7 @@ export function LoginForm({
   }
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn("flex flex-col gap-6", className)}>
       <Card>
         <CardHeader>
           <CardTitle>Login to your account</CardTitle>
@@ -74,8 +82,8 @@ export function LoginForm({
                   id="email"
                   type="email"
                   placeholder="m@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
                 />
               </Field>
@@ -92,8 +100,8 @@ export function LoginForm({
                 <Input
                   id="password"
                   type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required
                 />
               </Field>

@@ -54,13 +54,15 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           }
           <TooltipProvider>
             <UserProvider initialUser={user}>
-              <SidebarProvider>
-                <AppSidebar />
-                <SidebarInset>
-                  <Header />
-                  {children}
-                </SidebarInset>
-              </SidebarProvider>
+              <PantryProvider initialPantry={pantry}>
+                <SidebarProvider>
+                  <AppSidebar />
+                  <SidebarInset>
+                    <Header />
+                    {children}
+                  </SidebarInset>
+                </SidebarProvider>
+              </PantryProvider>
             </UserProvider>
           </TooltipProvider>
         </ThemeProvider>

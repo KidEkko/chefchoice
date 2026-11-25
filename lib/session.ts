@@ -41,8 +41,8 @@ export async function decrypt(session: string | Uint8Array | undefined): Promise
 
 const WEEK_IN_SECONDS: number = 60 * 60 * 24 * 7;
 
-// Current session format: { id, username, role }
-export async function createSession(session: User) { 
+// Current session format: { id, username, email }
+export async function createSession(session: User) {
   const token = await encrypt({ ...session, WEEK_IN_SECONDS });
 
   const cookie = await cookies();
@@ -51,7 +51,7 @@ export async function createSession(session: User) {
 
 // Return a basic User object for Local testing
 export async function createLocalSession(): Promise<User> {
-  const localSesh = JSON.parse(`{"username": "dev", "role": "chef_admin_user"}`);
+  const localSesh = JSON.parse(`{"id": 1, "username": "dev", "email": "dev@test.com"}`);
   return localSesh as User;
 }
 

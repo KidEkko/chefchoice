@@ -1,98 +1,145 @@
 "use client"
 
-import { Ingredient } from "@/utils/types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card";  
+import { useMemo, useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { NormalString } from "@/utils/constants";
-import { Item } from "../ui/item";
-import { Checkbox } from "../ui/checkbox";
-import { Field, FieldContent, FieldGroup, FieldLabel } from "../ui/field";
-import { useCallback, useState } from "react";
-import { usePantry } from "../providers/pantry";
+import { Ingredient } from "@/utils/types";
+import { Label } from "../ui/label";
 
-export function IngredientPicker({ ings }: { ings: Ingredient[]}) {
-    const [ingredients, setIngredients] = useState<Ingredient[]>(ings);
+interface IngredientPickerProps {
+    ingredients: Ingredient[];
+    /** Ids of ingredients in the user's saved pantry. They get their own section. */
+    pantryIds: ReadonlySet<number>;
+    selectedIds: ReadonlySet<number>;
+    onToggle: (id: number, selected: boolean) => void;
+    /** Select every ingredient in the list that is currently visible (respects the search box). */
+    onSelectMany: (ids: number[]) => void;
+    onClear: () => void;
+}
 
-    // Callback function that will update an ingredient by finding the unique id 
-    const updateIngredient = useCallback((ingredient: Ingredient, selected: boolean) => { 
-        setIngredients(prevIngs => prevIngs.map(ing =>
-            ing.ingredientId === ingredient.ingredientId ? { ...ing, selected: selected } : ing
-        )
-        // When updating the array, push unselected items to the bottom
-        // TODO: Might not be desirable for UX. Need to Examine
-        .sort((ing1, ing2) => {
-            if (ing1.selected && ing2.selected) {
-                return ing1.ingredientId - ing2.ingredientId;
-            } else if (ing1.selected) {
-                return -1;
-            }
-            return 1;
-        }))
-    }, [ingredients]);
+// Fully controlled: the parent owns the selection so the recommend button and results can use it.
+export function IngredientPicker({ ingredients, pantryIds, selectedIds, onToggle, onSelectMany, onClear }: IngredientPickerProps) {
+    const [query, setQuery] = useState("");
+
+    const { pantry, others } = useMemo(() => {
+        const q = query.trim().toLowerCase();
+        const visible = ingredients
+            .filter((ing) => !q || ing.name.toLowerCase().includes(q))
+            .sort((a, b) => a.name.localeCompare(b.name));
+        return {
+            pantry: visible.filter((ing) => pantryIds.has(ing.ingredientId)),
+            others: visible.filter((ing) => !pantryIds.has(ing.ingredientId)),
+        };
+    }, [ingredients, pantryIds, query]);
+
+    const visibleIds = [...pantry, ...others].map((ing) => ing.ingredientId);
 
     return (
-        <Card className="flex flex-1 min-w-1/2 ">
+        <Card>
             <CardHeader>
-                <CardTitle>
-                    Ingredient Picker
-                </CardTitle>
+                <div className="flex flex-wrap items-center gap-2">
+                    <CardTitle className="text-lg">What&apos;s in your kitchen?</CardTitle>
+                    <Badge variant="secondary" aria-live="polite">{selectedIds.size} selected</Badge>
+                    <div className="ml-auto flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => onSelectMany(visibleIds)} disabled={!visibleIds.length}>
+                            Select all
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={onClear} disabled={!selectedIds.size}>
+                            Clear
+                        </Button>
+                    </div>
+                </div>
                 <CardDescription>
-                    Pick and choose from Our current List of Ingredients!
+                    Tell Chef Choice what you have on hand and we&apos;ll pick the dishes you can make tonight.
                 </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-2">
-                {ingredients.map((ing) => <IngredientPickerRow ingredient={ing} update={updateIngredient} key={ing.name} />)}
+            <CardContent className="space-y-4">
+                <Input
+                    type="search"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search ingredients"
+                    aria-label="Search ingredients"
+                />
+                <div className="max-h-96 space-y-4 overflow-y-auto pr-1">
+                    {pantry.length > 0 && (
+                        <IngredientSection title="Your pantry" ingredients={pantry} selectedIds={selectedIds} onToggle={onToggle} />
+                    )}
+                    <IngredientSection
+                        title="All ingredients"
+                        ingredients={others}
+                        selectedIds={selectedIds}
+                        onToggle={onToggle}
+                        muted
+                    />
+                    {!visibleIds.length && (
+                        <p className="text-sm text-muted-foreground">No ingredients match &quot;{query}&quot;.</p>
+                    )}
+                </div>
             </CardContent>
         </Card>
     )
 }
 
-interface IPRowProps {
-    ingredient: Ingredient;
-    update: (ingredient: Ingredient, selected: boolean) => void;
+interface SectionProps {
+    title: string;
+    ingredients: Ingredient[];
+    selectedIds: ReadonlySet<number>;
+    onToggle: (id: number, selected: boolean) => void;
+    muted?: boolean;
 }
 
-function IngredientPickerRow({ ingredient, update, ...props }: IPRowProps) { 
+function IngredientSection({ title, ingredients, selectedIds, onToggle, muted }: SectionProps) {
+    if (!ingredients.length) return null;
+
     return (
-        <Item asChild>
-            <li className="flex flex-row flex-1 pt-0.5 pb-0.5 justify-between border border-white " {...props}>
-                <FieldGroup>
-                    <Field className="cursor-pointer" orientation="horizontal">
-                        <Checkbox 
-                            checked={ingredient.selected} 
-                            id={`${ingredient.name}-checkbox`} 
-                            name={`${ingredient.name}-checkbox`} 
-                            onCheckedChange={() => update(ingredient, !ingredient.selected)} 
-                        />
-                        <FieldLabel htmlFor={`${ingredient.name}-checkbox`} >{NormalString(ingredient.name)}</FieldLabel>
-                    
-                    </Field>
-                </FieldGroup>
-            </li>
-        </Item>
+        <section aria-label={title} className="space-y-1">
+            <h3 className={muted ? "text-sm font-medium text-muted-foreground" : "text-sm font-medium"}>
+                {title} · {ingredients.length}
+            </h3>
+            <ul className="space-y-1">
+                {ingredients.map((ing) => (
+                    <IngredientRow
+                        key={ing.ingredientId}
+                        ingredient={ing}
+                        selected={selectedIds.has(ing.ingredientId)}
+                        onToggle={onToggle}
+                    />
+                ))}
+            </ul>
+        </section>
     )
 }
 
-// TODO: Update this.
-// This should probably be in the same card as the ingredient picker
-// The ingredients should be separated by pantry items and regular items
-// function PantryDisplay() {
-//     const { pantry, update } = usePantry();
+interface RowProps {
+    ingredient: Ingredient;
+    selected: boolean;
+    onToggle: (id: number, selected: boolean) => void;
+}
 
-//     if (!pantry?.ingredients.length) return <></>
+function IngredientRow({ ingredient, selected, onToggle }: RowProps) {
+    const id = `ingredient-${ingredient.ingredientId}`;
 
-//     return (<>
-//         <Card className="flex flex-1 min-w-1/2 ">
-//             <CardHeader>
-//                 <CardTitle>
-//                     Your Pantry
-//                 </CardTitle>
-//                 <CardDescription>
-//                     Pick and choose from Our current List of Ingredients!
-//                 </CardDescription>
-//             </CardHeader>
-//             <CardContent className="space-y-2">
-//                 {pantry.ingredients.map((ing) => <IngredientPickerRow ingredient={ing} key={ing.name} />)}
-//             </CardContent>
-//         </Card>
-//     </>)
-// }
+    return (
+        <li>
+            {/* The whole row is the label, so the click target is at least as tall as the row */}
+            <Label
+                htmlFor={id}
+                className={`flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border px-3 text-sm transition-colors ${
+                    selected ? "border-border bg-accent font-semibold text-accent-foreground" : "border-transparent hover:bg-accent/50"
+                }`}
+            >
+                <Checkbox
+                    id={id}
+                    checked={selected}
+                    onCheckedChange={(checked) => onToggle(ingredient.ingredientId, checked === true)}
+                />
+                {NormalString(ingredient.name)}
+            </Label>
+        </li>
+    )
+}
