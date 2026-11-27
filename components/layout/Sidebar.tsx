@@ -31,7 +31,7 @@ interface SideBarTab {
 
 const data: SideBarItem[] = [
     {
-        title: "Features", 
+        title: "Features",
         tabs: [
             {
               title: "Home",
@@ -43,16 +43,16 @@ const data: SideBarItem[] = [
               path: "pantry",
               icon: Apple,
             },
+            {
+              title: "Recipes",
+              path: "recipes",
+              icon: NotebookPen,
+            },
         ],
     },
     // {
-    //     title: "Recipes",
+    //     title: "More",
     //     tabs: [
-    //         {
-    //             title: "All",
-    //             path: "recipes",
-    //             icon: NotebookPen,
-    //         },
     //         {
     //             title: "Favorites",
     //             path: "favorites",
@@ -73,11 +73,16 @@ export function AppSidebar() {
 
   // Tabs are updated to reflect which is active based on current path
   const updateSideBarItem = useCallback((item: SideBarItem) => {
-    // Remove leading '/' and check that the current path at least starts with the tab's path
-    // Will also account for nested paths should we go that route
+    // Remove leading '/' and check that the current path matches the tab's path
     const strippedPath = path.slice(1);
     item.tabs = item.tabs.map(tab => {
-      tab.isActive = strippedPath.startsWith(tab.path)
+      // For home (empty path), only match if strippedPath is exactly empty
+      // For other paths, check if strippedPath starts with the tab path
+      if (tab.path === "") {
+        tab.isActive = strippedPath === "";
+      } else {
+        tab.isActive = strippedPath.startsWith(tab.path);
+      }
       return tab;
     })
     return item;
@@ -92,12 +97,12 @@ export function AppSidebar() {
           <SidebarGroup key={item.title}>
             <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenu>
+              <SidebarMenu className="space-y-1">
                 {item.tabs.map((tab) => {
                     const Icon = tab.icon;
                     return (
                         <SidebarMenuItem key={tab.title}>
-                            <SidebarMenuButton asChild isActive={tab.isActive}>
+                            <SidebarMenuButton asChild isActive={tab.isActive} className="cursor-pointer">
                                 <a href={tab.path}>
                                   <Icon />
                                   {tab.title}

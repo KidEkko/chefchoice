@@ -8,7 +8,7 @@ import { AppSidebar } from "@/components/layout/Sidebar";
 import { UserProvider, PantryProvider } from "@/components/providers";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Header } from "@/components/layout/Header";
-import { GetUserPantry, GetUserWithToken } from "./actions";
+import { GetUserWithToken } from "@/lib/actions";
 
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
@@ -28,9 +28,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  // Check User for their Cookie before loading the page
   const user = await GetUserWithToken();
-  const pantry = await GetUserPantry(user);
 
   return (
     <html
@@ -54,7 +52,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           }
           <TooltipProvider>
             <UserProvider initialUser={user}>
-              <PantryProvider initialPantry={pantry}>
+              <PantryProvider initialPantry={undefined}>
                 <SidebarProvider>
                   <AppSidebar />
                   <SidebarInset>

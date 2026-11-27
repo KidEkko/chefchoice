@@ -2,7 +2,8 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
-import { Clock, Users } from "lucide-react";
+import Image from "next/image";
+import { Clock, Users, ImageIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -44,9 +45,26 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
 
     return (
         <Link href={href} className="group block">
-            <Card className="h-full transition-shadow hover:shadow-lg">
+            <Card className="h-full transition-shadow hover:shadow-lg overflow-hidden">
+                {/* Recipe Image */}
+                <div className="relative aspect-video w-full overflow-hidden bg-muted">
+                    {recipe.imageUrl ? (
+                        <Image
+                            src={recipe.imageUrl}
+                            alt={recipe.name}
+                            fill
+                            className="object-cover transition-transform group-hover:scale-105"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
+                    ) : (
+                        <div className="flex h-full items-center justify-center bg-muted">
+                            <ImageIcon className="h-12 w-12 text-muted-foreground/50" />
+                        </div>
+                    )}
+                </div>
+
                 <CardHeader className="gap-3">
-                    <CardTitle className="text-lg group-hover:underline">{recipe.name}</CardTitle>
+                    <CardTitle className="text-lg group-hover:underline line-clamp-2">{recipe.name}</CardTitle>
 
                     {/* Metadata */}
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">

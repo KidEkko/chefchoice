@@ -9,6 +9,7 @@ export interface Recipe {
   createdOn: Date;
   rating?: number | undefined;
   sourceUrl: string;
+  imageUrl?: string;
   cookMinutes: number;
   prepMinutes: number;
   servings: number;
@@ -22,23 +23,24 @@ export interface RecipeRow {
   username: string,
   instructions: string[],
   ingredients: Ingredient[];
-  is_deleted: boolean,
-  created_on: Date,
-  rating?: number | undefined,
-  sourceUrl: string;
-  cookMinutes: number;
-  prepMinutes: number;
+  is_deleted?: boolean,
+  created_on?: Date,
+  rating?: number,
+  source_url: string;
+  image_url?: string;
+  cook_minutes: number;
+  prep_minutes: number;
   servings: number;
   difficulty: "easy" | "medium" | "hard";
-  dietaryTags: string[];
+  dietary_tags?: string[];
 }
 
 
 
 // TODO: confirm we want id to be separate here or if we add the id to the row construction
 export function RowToRecipe(recipeRow: RecipeRow, ingredientRows?: IngredientRow[]): Recipe {
-  const ingredients = ingredientRows ? 
-    IngredientRowsToIngredient(ingredientRows) : 
+  const ingredients = ingredientRows ?
+    IngredientRowsToIngredient(ingredientRows) :
     recipeRow.ingredients;
   return {
     recipeId: recipeRow.recipe_id,
@@ -46,14 +48,15 @@ export function RowToRecipe(recipeRow: RecipeRow, ingredientRows?: IngredientRow
     createdBy: recipeRow.username,
     instructions: recipeRow.instructions,
     ingredients: ingredients, // TODO: are we adding selecting here?
-    createdOn: recipeRow.created_on,
+    createdOn: recipeRow.created_on || new Date(),
     rating: recipeRow.rating,
-    sourceUrl: recipeRow.sourceUrl,
-    cookMinutes: recipeRow.cookMinutes,
-    prepMinutes: recipeRow.prepMinutes,
+    sourceUrl: recipeRow.source_url,
+    imageUrl: recipeRow.image_url,
+    cookMinutes: recipeRow.cook_minutes,
+    prepMinutes: recipeRow.prep_minutes,
     servings: recipeRow.servings,
     difficulty: recipeRow.difficulty,
-    dietaryTags: recipeRow.dietaryTags,
+    dietaryTags: recipeRow.dietary_tags || [],
   }
 }
 

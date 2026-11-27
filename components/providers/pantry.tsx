@@ -3,12 +3,15 @@
 import {
   createContext,
   useCallback,
-  useContext, 
+  useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
-} from "react"; 
+} from "react";
 import { Pantry } from "@/utils/types";
+import { GetUserPantry } from "@/lib/actions";
+import { useUser } from "./user";
 
 
 export interface PantryContextType {
@@ -33,6 +36,18 @@ export function usePantry(): PantryContextType {
 
 export function PantryProvider({ initialPantry, children }: PantryProviderProps) {
   const [pantry, setPantry] = useState<Pantry | undefined>(initialPantry);
+  const { user } = useUser();
+
+  // Fetch pantry data when user is available
+  useEffect(() => {
+    if (user) {
+      GetUserPantry(user).then(userPantry => {
+        if (userPantry) {
+          setPantry(userPantry);
+        }
+      });
+    }
+  }, [user]);
 
   const update = useCallback((newPantry: Pantry) => setPantry(newPantry), []);
 

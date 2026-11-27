@@ -1,6 +1,7 @@
 import { sql } from "@/utils";
 import { RecipeRow } from "@/utils/types/recipe";
 import { RowsToRecipes } from "@/utils/types/recipe";
+import { INGREDIENTS_SUBQUERY } from "@/utils/queries/recipe";
 import { RecipesDisplay } from "./RecipesDisplay";
 
 const RECIPES_PER_PAGE = 12;
@@ -25,6 +26,7 @@ export default async function RecipesPage({
     const offset = (page - 1) * RECIPES_PER_PAGE;
 
     // Build sort clause
+    // TODO: Review sql.unsafe usage for security - currently safe as sortClause is built from controlled enum
     let sortClause = "r.created_on DESC";
     switch (sort) {
         case "oldest":
@@ -54,25 +56,18 @@ export default async function RecipesPage({
     const totalPages = Math.ceil(totalRecipes / RECIPES_PER_PAGE);
 
     // Fetch recipes with pagination
-    // TODO: Extract this query into a shared utility function (see duplicate queries in recommendRecipes and recipe/[id])
+    // TODO: ingredient_count subquery is redundant since INGREDIENTS_SUBQUERY already fetches ingredients
+    // Could use recipe.ingredients.length after parsing instead
     const recipes = (await sql`
-        SELECT r.recipe_id AS id, r.name, u.username, r.instructions,
-               r.source_url AS source, r.servings, r.prep_minutes, r.cook_minutes,
+        SELECT r.recipe_id, r.name, u.username, r.instructions,
+               r.source_url, r.image_url, r.servings, r.prep_minutes, r.cook_minutes,
                r.difficulty, r.created_on,
             (
                 SELECT COUNT(*)
                 FROM recipe_to_ingredients rti
                 WHERE rti.recipe_id = r.recipe_id
             ) as ingredient_count,
-            (
-                SELECT json_agg(json_build_object(
-                    'name', i.name, 'cost', i.cost,
-                    'unit', rti.unit, 'amount', rti.amount, 'note', rti.note,
-                    'ingredientId', i.ingredient_id) ORDER BY i.name)
-                FROM recipe_to_ingredients rti
-                INNER JOIN ingredients i ON i.ingredient_id = rti.ingredient_id
-                WHERE rti.recipe_id = r.recipe_id
-            ) AS ingredients
+            ${INGREDIENTS_SUBQUERY}
         FROM recipes r
         INNER JOIN users u ON u.user_id = r.user_id
         WHERE NOT r.is_deleted ${difficultyFilter}

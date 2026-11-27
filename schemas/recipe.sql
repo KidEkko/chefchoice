@@ -6,6 +6,7 @@ CREATE TABLE recipes (
   created_on timestamptz default current_date,
   is_deleted boolean not null default false,
   source_url text,
+  image_url text,
   servings integer,
   prep_minutes integer,
   cook_minutes integer,

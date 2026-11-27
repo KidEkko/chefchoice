@@ -23,7 +23,7 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Recipe } from "@/utils/types";
-import { RecipeCard } from "./RecipeCard";
+import { RecipeCard } from "@/components/recipe/RecipeCard";
 
 interface RecipesDisplayProps {
     recipes: Recipe[];
@@ -169,7 +169,7 @@ export function RecipesDisplay({
                     </Button>
                 </div>
             ) : (
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-6 sm:grid-cols-2">
                     {recipes.map((recipe) => (
                         <RecipeCard key={recipe.recipeId} recipe={recipe} />
                     ))}

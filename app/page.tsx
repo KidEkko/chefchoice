@@ -1,7 +1,8 @@
 import { sql } from "@/utils";
 import { Ingredient, IngredientRow, IngredientRowsToIngredient } from "@/utils/types";
 import { cacheLife } from "next/cache";
-import { PantryRecommender } from "@/components/pantry/PantryRecommender"; 
+import { PantryRecommender } from "@/components/pantry/PantryRecommender";
+import { Suspense } from "react"; 
 
 /**
  * Base page requirements:
@@ -46,17 +47,31 @@ import { PantryRecommender } from "@/components/pantry/PantryRecommender";
  */
 
 
-export default async function Home() {
-  const ingredients = await GetIngredients();
-
+export default function Home() {
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8 sm:px-6">
       <div className="space-y-1">
         <h1 className="text-2xl font-semibold">Chef Choice</h1>
         <p className="text-muted-foreground">Pick what you have, and we&apos;ll choose what&apos;s for dinner.</p>
       </div>
-      <PantryRecommender ingredients={ingredients} />
+      <Suspense fallback={<PantryRecommenderSkeleton />}>
+        <PantryRecommenderWrapper />
+      </Suspense>
     </main>
+  );
+}
+
+async function PantryRecommenderWrapper() {
+  const ingredients = await GetIngredients();
+  return <PantryRecommender ingredients={ingredients} />;
+}
+
+function PantryRecommenderSkeleton() {
+  return (
+    <div className="animate-pulse space-y-4">
+      <div className="h-10 bg-muted rounded"></div>
+      <div className="h-32 bg-muted rounded"></div>
+    </div>
   );
 }
 

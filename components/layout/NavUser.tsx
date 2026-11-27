@@ -78,7 +78,7 @@ export function NavUser() {
             align="end"
             sideOffset={4}
           >
-            <DropdownMenuLabel className="p-0 font-normal">
+            <DropdownMenuLabel className="flex items-center gap-2 p-2 font-normal">
               <UserAvatarDisplay />
             </DropdownMenuLabel>
             <DropdownMenuSeparator />

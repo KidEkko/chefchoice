@@ -25,6 +25,7 @@ export async function encrypt(payload: JWTPayload): Promise<string> {
 // Decrypt a token
 // Expected to be a User session token
 export async function decrypt(session: string | Uint8Array | undefined): Promise<DecodedSession | undefined> {
+  "use cache";
   if (session !== undefined) {
     try {
       const { payload } = await jwtVerify<DecodedSession>(session, encodedKey, {
@@ -65,8 +66,8 @@ export async function updateSession(session: User | undefined): Promise<User | u
 
 // Verify a user's session
 // Check if they have cookies, confirm they have a user token, then try to decrypt the token
-// If they have an invalid token, delete it. Otherwise, update their session 
-export async function verifySession(): Promise<User | undefined> {
+// If they have an invalid token, delete it. Otherwise, update their session
+export async function verifySession(serverAction?: boolean): Promise<User | undefined> {
   const token = await cookies();
   if (!token) return;
 
@@ -76,8 +77,9 @@ export async function verifySession(): Promise<User | undefined> {
   if (!session && tokenString) {
     deleteSession();
     return;
-  } 
-  return await updateSession(session);
+  }
+  serverAction && await updateSession(session);
+  return session;
 }
 
 export async function deleteSession() {

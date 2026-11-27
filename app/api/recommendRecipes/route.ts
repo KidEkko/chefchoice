@@ -2,6 +2,7 @@ import { ChefResponse, GenericHandler } from "@/utils/api";
 import { RecipeRow } from "@/utils/types";
 import { sql } from "@/utils";
 import { RowsToRecipes } from "@/utils/types/recipe";
+import { INGREDIENTS_SUBQUERY } from "@/utils/queries/recipe";
 
 const PROCESS = "Recommend Recipes";
 export async function POST(req: Request) {
@@ -9,10 +10,18 @@ export async function POST(req: Request) {
 }
 
 async function recommendRecipes(req: Request, resp: ChefResponse) {
-  const ids = await req.json() as number[];
+  const rawIds = await req.json();
 
-  // If no ingredients selected, show default recipes with variety
-  if (!ids || !ids.length) {
+  // Validate input is an array of numbers
+  if (!Array.isArray(rawIds)) {
+    resp.setData([]);
+    return;
+  }
+
+  const ids = rawIds.filter(id => typeof id === 'number' && !isNaN(id));
+
+  // If no valid ingredients selected, show default recipes with variety
+  if (!ids.length) {
     const defaultRecipes = await getDefaultRecipes();
     resp.setData(defaultRecipes);
     return;
@@ -47,22 +56,17 @@ async function recommendRecipes(req: Request, resp: ChefResponse) {
   // Create Recipe Id array for Full Query
   const recipeIds = recommendations.map(recipe => recipe.recipe_id);
  
-  // More expensive query fetching all relevant information 
+  // More expensive query fetching all relevant information
   const recipes =
     (await sql`
-      SELECT r.recipe_id AS id, r.name, u.username, r.instructions, r.source, r.servings, r.prep_minutes, r.cook_minutes, r.difficulty,
-        (
-          SELECT json_agg(json_build_object(
-              'name', i.name, 'cost', i.cost,
-              'unit', rti.unit, 'amount', rti.amount, 'note', rti.note) ORDER BY i.name)
-              FROM recipe_to_ingredients rti 
-              INNER JOIN ingredients i ON i.ingredient_id = rti.ingredient_id  
-              WHERE rti.recipe_id = r.recipe_id
-          )
-        ) AS ingredients
+      SELECT r.recipe_id, r.name, u.username, r.instructions,
+             r.source_url, r.image_url, r.servings, r.prep_minutes, r.cook_minutes,
+             r.difficulty, r.created_on,
+             ${INGREDIENTS_SUBQUERY}
       FROM recipes r
       INNER JOIN users u ON u.user_id = r.user_id
-      WHERE NOT r.is_deleted AND r.recipe_id = ANY(${recipeIds}::int[]);`) as RecipeRow[];
+      WHERE NOT r.is_deleted AND r.recipe_id = ANY(${recipeIds}::int[])
+    `) as RecipeRow[];
 
   resp.setData(RowsToRecipes(recipes))
   return;
@@ -121,23 +125,15 @@ async function getDefaultRecipes() {
 
   const recipeIds = recommendations.map(r => r.recipe_id);
 
-  // TODO: if this is identical to the above query, move to a function to save line space
   // Fetch full recipe details
   const recipes = (await sql`
-    SELECT r.recipe_id AS id, r.name, u.username, r.instructions, r.source_url AS source, r.servings, r.prep_minutes, r.cook_minutes, r.difficulty,
-      (
-        SELECT json_agg(json_build_object(
-            'name', i.name, 'cost', i.cost,
-            'unit', rti.unit, 'amount', rti.amount, 'note', rti.note,
-            'ingredientId', i.ingredient_id) ORDER BY i.name)
-            FROM recipe_to_ingredients rti
-            INNER JOIN ingredients i ON i.ingredient_id = rti.ingredient_id
-            WHERE rti.recipe_id = r.recipe_id
-        )
-      ) AS ingredients
+    SELECT r.recipe_id, r.name, u.username, r.instructions,
+           r.source_url, r.image_url, r.servings, r.prep_minutes, r.cook_minutes,
+           r.difficulty, r.created_on,
+           ${INGREDIENTS_SUBQUERY}
     FROM recipes r
     INNER JOIN users u ON u.user_id = r.user_id
-    WHERE NOT r.is_deleted AND r.recipe_id = ANY(${recipeIds}::int[]);
+    WHERE NOT r.is_deleted AND r.recipe_id = ANY(${recipeIds}::int[])
   `) as RecipeRow[];
 
   return RowsToRecipes(recipes);

@@ -54,7 +54,7 @@ export function IngredientPicker({ ingredients, pantryIds, selectedIds, onToggle
                     </div>
                 </div>
                 <CardDescription>
-                    Tell Chef Choice what you have on hand and we&apos;ll pick the dishes you can make tonight.
+                    Tell Chef Choice what you have on hand and we&apos;ll pick the best dishes you can make tonight.
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -76,7 +76,7 @@ export function IngredientPicker({ ingredients, pantryIds, selectedIds, onToggle
                         onToggle={onToggle}
                         muted
                     />
-                    {!visibleIds.length && (
+                    {!visibleIds.length && query.trim() && (
                         <p className="text-sm text-muted-foreground">No ingredients match &quot;{query}&quot;.</p>
                     )}
                 </div>
